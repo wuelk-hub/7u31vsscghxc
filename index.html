@@ -241,6 +241,20 @@ const HB_TRACKER = {
     endingDeficit: '~$21.2M by Feb 2027',
     deficitNote: 'Unfunded construction gap = GP equity/bridge raise target'
   },
+  monthly: [
+    {mo:'Mar 26',sources:56500,gibson:56500,reserve:0,nriOps:0,construction:131000,shrub:6500,ops:50000,ap:0,totalUses:187500,deficit:-131000,cumDeficit:-131000},
+    {mo:'Apr 26',sources:65000,gibson:65000,reserve:0,nriOps:0,construction:168500,shrub:15000,ops:50000,ap:0,totalUses:233500,deficit:-168500,cumDeficit:-299500},
+    {mo:'May 26',sources:80000,gibson:0,reserve:80000,nriOps:0,construction:283500,shrub:30000,ops:50000,ap:0,totalUses:363500,deficit:-283500,cumDeficit:-583000},
+    {mo:'Jun 26',sources:80000,gibson:0,reserve:80000,nriOps:0,construction:513500,shrub:30000,ops:50000,ap:0,totalUses:593500,deficit:-513500,cumDeficit:-1096500},
+    {mo:'Jul 26',sources:80000,gibson:0,reserve:80000,nriOps:0,construction:575000,shrub:30000,ops:50000,ap:562641,totalUses:1217641,deficit:-1137641,cumDeficit:-2234141},
+    {mo:'Aug 26',sources:80000,gibson:0,reserve:80000,nriOps:0,construction:662640,shrub:30000,ops:50000,ap:0,totalUses:742640,deficit:-662640,cumDeficit:-2896781},
+    {mo:'Sep 26',sources:80000,gibson:0,reserve:80000,nriOps:0,construction:980000,shrub:30000,ops:50000,ap:0,totalUses:1060000,deficit:-980000,cumDeficit:-3876781},
+    {mo:'Oct 26',sources:80000,gibson:0,reserve:80000,nriOps:0,construction:1272500,shrub:30000,ops:50000,ap:0,totalUses:1352500,deficit:-1272500,cumDeficit:-5149281},
+    {mo:'Nov 26',sources:80000,gibson:0,reserve:80000,nriOps:0,construction:2242500,shrub:30000,ops:50000,ap:0,totalUses:2322500,deficit:-2242500,cumDeficit:-7391781},
+    {mo:'Dec 26',sources:80000,gibson:0,reserve:80000,nriOps:0,construction:2640000,shrub:30000,ops:50000,ap:0,totalUses:2720000,deficit:-2640000,cumDeficit:-10031781},
+    {mo:'Jan 27',sources:30000,gibson:0,reserve:10000,nriOps:20000,construction:5603333,shrub:30000,ops:0,ap:0,totalUses:5633333,deficit:-5603333,cumDeficit:-15635114},
+    {mo:'Feb 27',sources:30000,gibson:0,reserve:0,nriOps:30000,construction:5603333,shrub:30000,ops:0,ap:0,totalUses:5633333,deficit:-5603333,cumDeficit:-21238448},
+  ],
   pipeline: [
     {name:'Kerzner CoGP',type:'GP Equity',status:'Committed',amount:'$11.49M'},
     {name:'Hagerstrom',type:'Bridge',status:'Committed',amount:'$150K'},
@@ -462,6 +476,44 @@ function renderHBTracker(){
       <div style="font-size:11px;color:var(--yellow);margin-top:4px;font-weight:500">${h.cashflow.deficitNote}</div>
     </div></div>
 
+    <div class="section">Monthly Cash Flow (Barrigona)</div>
+    <div class="card" style="overflow-x:auto;-webkit-overflow-scrolling:touch">
+      <table style="width:max-content;min-width:100%;border-collapse:collapse;font-size:11px">
+        <thead>
+          <tr style="background:var(--bg2)">
+            <th style="padding:8px 10px;text-align:left;font-weight:700;position:sticky;left:0;background:var(--bg2);z-index:1;min-width:90px">Month</th>
+            <th style="padding:8px 8px;text-align:right;font-weight:600;color:var(--green);min-width:70px">Sources</th>
+            <th style="padding:8px 8px;text-align:right;font-weight:600;color:var(--red);min-width:75px">Constr.</th>
+            <th style="padding:8px 8px;text-align:right;font-weight:600;color:var(--yellow);min-width:65px">Ops</th>
+            <th style="padding:8px 8px;text-align:right;font-weight:600;color:var(--red);min-width:80px">Total Uses</th>
+            <th style="padding:8px 8px;text-align:right;font-weight:700;min-width:90px">Cum. Deficit</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${h.monthly.map(m=>{
+            const fmt=v=>v>=1000000?'$'+(v/1000000).toFixed(1)+'M':v>=1000?'$'+(v/1000).toFixed(0)+'K':'$'+v;
+            const fmtD=v=>'($'+(Math.abs(v)>=1000000?(Math.abs(v)/1000000).toFixed(1)+'M':(Math.abs(v)/1000).toFixed(0)+'K')+')';
+            return `<tr style="border-bottom:1px solid var(--border)">
+              <td style="padding:8px 10px;font-weight:600;position:sticky;left:0;background:var(--card);z-index:1">${m.mo}</td>
+              <td style="padding:8px 8px;text-align:right;color:var(--green)">${fmt(m.sources)}</td>
+              <td style="padding:8px 8px;text-align:right">${fmt(m.construction)}</td>
+              <td style="padding:8px 8px;text-align:right">${fmt(m.shrub+m.ops)}</td>
+              <td style="padding:8px 8px;text-align:right;color:var(--red)">${fmt(m.totalUses)}</td>
+              <td style="padding:8px 8px;text-align:right;font-weight:700;color:var(--red)">${fmtD(m.cumDeficit)}</td>
+            </tr>`;
+          }).join('')}
+          <tr style="background:var(--bg2);font-weight:700">
+            <td style="padding:8px 10px;position:sticky;left:0;background:var(--bg2);z-index:1">Total</td>
+            <td style="padding:8px 8px;text-align:right;color:var(--green)">$822K</td>
+            <td style="padding:8px 8px;text-align:right">$20.7M</td>
+            <td style="padding:8px 8px;text-align:right">$822K</td>
+            <td style="padding:8px 8px;text-align:right;color:var(--red)">$22.1M</td>
+            <td style="padding:8px 8px;text-align:right;color:var(--red)">($21.2M)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
     <div class="section">Capital Pipeline</div>
     <div class="card">
       <div style="padding:10px 16px;font-size:12px;font-weight:700;color:var(--green);border-bottom:1px solid var(--border)">Committed</div>
@@ -483,13 +535,14 @@ function renderHBTracker(){
   </div>`;
 }
 
+render();
+} // end initApp
+
+// Global function so onclick works
 function toggleCard(el){
   const body=el.nextElementSibling;
   body.classList.toggle('open');
 }
-
-render();
-} // end initApp
 </script>
 </body>
 </html>
