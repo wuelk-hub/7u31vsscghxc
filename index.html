@@ -211,7 +211,52 @@ function activeCount(){return allTasks().filter(t=>!t.done).length}
 function doneCount(){return allTasks().filter(t=>t.done).length}
 
 // Tabs
-const tabDefs=[{id:'overview',label:'Overview'},{id:'projects',label:'Projects'},{id:'tasks',label:'Tasks'},{id:'people',label:'People'}];
+const HB_TRACKER = {
+  updated: 'Apr 10, 2026',
+  entity: {
+    topEntity: 'Inmerso',
+    devHoldings: 'NRI Barrigona Development Holdings',
+    devHoldingsAmt: '$11.49M',
+    investmentVehicle: 'NRI Investment Collection',
+    investmentNote: 'Receives bridge loan + equity proceeds'
+  },
+  equity: {
+    target: '$85M',
+    committed: '$11.49M',
+    committedBy: 'Kerzner CoGP',
+    pctRaised: 13.5,
+    closingTarget: '2026'
+  },
+  bridge: {
+    target: '$600K',
+    committed: '$300K',
+    committedBy: 'Hagerstrom + Radsford',
+    pctRaised: 50
+  },
+  cashflow: {
+    gibsonCovers: 'Through May 2026',
+    reserveAmt: '$650K',
+    reserveNote: 'Carries ops until depleted, then NRI picks up',
+    monthlyOps: '$80K/mo (shrub $30K + general $50K)',
+    endingDeficit: '~$21.2M by Feb 2027',
+    deficitNote: 'Unfunded construction gap = GP equity/bridge raise target'
+  },
+  pipeline: [
+    {name:'Kerzner CoGP',type:'GP Equity',status:'Committed',amount:'$11.49M'},
+    {name:'Hagerstrom',type:'Bridge',status:'Committed',amount:'$150K'},
+    {name:'Radsford',type:'Bridge',status:'Committed',amount:'$150K'},
+    {name:'Doug Stern',type:'GP Equity',status:'Pipeline',amount:'TBD'},
+    {name:'Harpeth Capital',type:'GP Equity',status:'Pipeline',amount:'TBD'},
+    {name:'Britton Jones',type:'GP Equity',status:'Pipeline',amount:'TBD'},
+    {name:'Bernard Curry',type:'GP Equity',status:'Pipeline',amount:'TBD'},
+    {name:'Chad DeMartini',type:'GP Equity',status:'Pipeline',amount:'TBD'},
+    {name:'Mel Land',type:'GP Equity',status:'Target 2026',amount:'TBD'},
+    {name:'NRI Developer',type:'GP Equity',status:'Target 2026',amount:'TBD'},
+    {name:'Kerzner Equity',type:'GP Equity',status:'Target 2026',amount:'TBD'},
+  ]
+};
+
+const tabDefs=[{id:'overview',label:'Overview'},{id:'projects',label:'Projects'},{id:'hb',label:'HB Tracker'},{id:'tasks',label:'Tasks'},{id:'people',label:'People'}];
 let activeTab='overview';
 const tabsEl=document.getElementById('tabs');
 const panelsEl=document.getElementById('panels');
@@ -222,6 +267,7 @@ function render(){
 
   if(activeTab==='overview') renderOverview();
   else if(activeTab==='projects') renderProjects();
+  else if(activeTab==='hb') renderHBTracker();
   else if(activeTab==='tasks') renderTasks();
   else renderPeople();
 }
@@ -348,6 +394,93 @@ function renderPeople(){
     panelsEl.querySelectorAll('#pfilters .fbtn').forEach(b=>b.onclick=()=>{pfilter=b.dataset.f;draw()});
   };
   draw();
+}
+
+function renderHBTracker(){
+  const h=HB_TRACKER;
+  const committedPpl=h.pipeline.filter(p=>p.status==='Committed');
+  const pipelinePpl=h.pipeline.filter(p=>p.status==='Pipeline');
+  const targetPpl=h.pipeline.filter(p=>p.status==='Target 2026');
+
+  panelsEl.innerHTML=`<div class="panel active">
+    <div style="font-size:11px;color:var(--muted);margin-bottom:12px">Hacienda Barrigona Capital Tracker &mdash; Updated ${h.updated}</div>
+
+    <div class="section">Raise Summary</div>
+    <div class="stats">
+      <div class="stat"><div class="stat-val accent">${h.equity.target}</div><div class="stat-lbl">Equity Target</div></div>
+      <div class="stat"><div class="stat-val green">${h.equity.committed}</div><div class="stat-lbl">Committed</div></div>
+      <div class="stat"><div class="stat-val yellow">${h.bridge.target}</div><div class="stat-lbl">Bridge Target</div></div>
+      <div class="stat"><div class="stat-val green">${h.bridge.committed}</div><div class="stat-lbl">Bridge Committed</div></div>
+    </div>
+
+    <div class="card">
+      <div style="padding:14px 16px">
+        <div style="font-size:13px;font-weight:700;margin-bottom:10px">Equity Raise</div>
+        <div style="background:var(--bg2);border-radius:8px;height:12px;overflow:hidden;margin-bottom:6px">
+          <div style="background:var(--green);height:100%;width:${h.equity.pctRaised}%;border-radius:8px"></div>
+        </div>
+        <div style="font-size:11px;color:var(--muted);display:flex;justify-content:space-between">
+          <span>${h.equity.committed} committed (${h.equity.committedBy})</span>
+          <span>${h.equity.pctRaised}%</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div style="padding:14px 16px">
+        <div style="font-size:13px;font-weight:700;margin-bottom:10px">Bridge Loan</div>
+        <div style="background:var(--bg2);border-radius:8px;height:12px;overflow:hidden;margin-bottom:6px">
+          <div style="background:var(--green);height:100%;width:${h.bridge.pctRaised}%;border-radius:8px"></div>
+        </div>
+        <div style="font-size:11px;color:var(--muted);display:flex;justify-content:space-between">
+          <span>${h.bridge.committed} committed (${h.bridge.committedBy})</span>
+          <span>${h.bridge.pctRaised}%</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">Entity Structure</div>
+    <div class="card"><div style="padding:14px 16px">
+      <div class="meta-grid">
+        <div class="meta-item"><div class="meta-label">Top Entity</div><div class="meta-value">${h.entity.topEntity}</div></div>
+        <div class="meta-item"><div class="meta-label">Dev Holdings</div><div class="meta-value">${h.entity.devHoldings}</div></div>
+        <div class="meta-item"><div class="meta-label">Committed</div><div class="meta-value">${h.entity.devHoldingsAmt}</div></div>
+        <div class="meta-item"><div class="meta-label">Investment Vehicle</div><div class="meta-value">${h.entity.investmentVehicle}</div></div>
+      </div>
+      <div style="font-size:11px;color:var(--muted);margin-top:8px">${h.entity.investmentNote}</div>
+    </div></div>
+
+    <div class="section">Monthly Cash Flow</div>
+    <div class="card"><div style="padding:14px 16px">
+      <div class="meta-grid">
+        <div class="meta-item"><div class="meta-label">Gibson Covers</div><div class="meta-value">${h.cashflow.gibsonCovers}</div></div>
+        <div class="meta-item"><div class="meta-label">Reserve</div><div class="meta-value">${h.cashflow.reserveAmt}</div></div>
+        <div class="meta-item"><div class="meta-label">Monthly Ops</div><div class="meta-value">${h.cashflow.monthlyOps}</div></div>
+        <div class="meta-item"><div class="meta-label">Ending Deficit</div><div class="meta-value" style="color:var(--red)">${h.cashflow.endingDeficit}</div></div>
+      </div>
+      <div style="font-size:11px;color:var(--muted);margin-top:8px">${h.cashflow.reserveNote}</div>
+      <div style="font-size:11px;color:var(--yellow);margin-top:4px;font-weight:500">${h.cashflow.deficitNote}</div>
+    </div></div>
+
+    <div class="section">Capital Pipeline</div>
+    <div class="card">
+      <div style="padding:10px 16px;font-size:12px;font-weight:700;color:var(--green);border-bottom:1px solid var(--border)">Committed</div>
+      ${committedPpl.map(p=>`<div style="padding:10px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border)">
+        <div><div style="font-size:13px;font-weight:600">${p.name}</div><div style="font-size:11px;color:var(--muted)">${p.type}</div></div>
+        <div style="font-size:13px;font-weight:700;color:var(--green)">${p.amount}</div>
+      </div>`).join('')}
+      <div style="padding:10px 16px;font-size:12px;font-weight:700;color:var(--yellow);border-bottom:1px solid var(--border)">Pipeline — Needs Next Steps</div>
+      ${pipelinePpl.map(p=>`<div style="padding:10px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border)">
+        <div><div style="font-size:13px;font-weight:600">${p.name}</div><div style="font-size:11px;color:var(--muted)">${p.type}</div></div>
+        <span class="tag tag-waiting">${p.status}</span>
+      </div>`).join('')}
+      <div style="padding:10px 16px;font-size:12px;font-weight:700;color:var(--accent);border-bottom:1px solid var(--border)">Target Close 2026</div>
+      ${targetPpl.map(p=>`<div style="padding:10px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border)">
+        <div><div style="font-size:13px;font-weight:600">${p.name}</div><div style="font-size:11px;color:var(--muted)">${p.type}</div></div>
+        <span class="tag tag-source">${p.status}</span>
+      </div>`).join('')}
+    </div>
+  </div>`;
 }
 
 function toggleCard(el){
