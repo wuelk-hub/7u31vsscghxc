@@ -2,547 +2,588 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="NRI Dashboard">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>App</title>
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='4' y='2' width='24' height='28' rx='4' fill='%23faf9f5' stroke='%23D97757' stroke-width='2'/%3E%3Crect x='8' y='0' width='16' height='5' rx='2.5' fill='%23D97757'/%3E%3C/svg%3E">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    *{box-sizing:border-box;margin:0;padding:0}
-    :root{--bg:#faf9f5;--bg2:#f0efea;--card:#fff;--text:#141413;--text2:#5c5c5a;--muted:#8c8c8a;--accent:#D97757;--border:#e5e4df;--green:#2d8a4e;--yellow:#b8860b;--red:#c0392b;--blue:#2980b9;--shadow:rgba(20,20,19,.06)}
-    body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);padding:0;line-height:1.5;-webkit-font-smoothing:antialiased;padding-bottom:80px}
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #faf9f5; --bg2: #f0efea; --card: #fff; --text: #141413;
+      --text2: #5c5c5a; --muted: #8c8c8a; --accent: #D97757;
+      --accent2: #c4684a; --border: #e5e4df; --border2: #eeeee9;
+      --shadow: rgba(20,20,19,.04); --shadow2: rgba(20,20,19,.08);
+      --green: #2d8a4e; --yellow: #b8860b; --red: #c0392b; --blue: #2980b9;
+    }
+    body { font-family:'Inter',-apple-system,sans-serif; background:var(--bg); color:var(--text); padding:20px 28px; line-height:1.5; }
+    header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; padding-bottom:16px; border-bottom:1px solid var(--border); }
+    h1 { font-size:1.4rem; font-weight:700; letter-spacing:-.02em; }
+    .subtitle { font-size:12px; color:var(--muted); margin-top:2px; }
+    .tabs { display:flex; gap:4px; background:var(--bg2); padding:4px; border-radius:8px; }
+    .tab { background:transparent; border:none; padding:7px 16px; font-size:13px; color:var(--muted); border-radius:6px; cursor:pointer; font-family:inherit; font-weight:500; }
+    .tab:hover { color:var(--text); }
+    .tab.active { background:var(--card); color:var(--text); box-shadow:0 1px 3px var(--shadow); }
+    .panel { display:none; }
+    .panel.active { display:block; }
 
-    .header{position:sticky;top:0;z-index:100;background:var(--bg);padding:16px 16px 0;border-bottom:1px solid var(--border)}
-    .header h1{font-size:18px;font-weight:700;letter-spacing:-.02em}
-    .header .sub{font-size:11px;color:var(--muted);margin-top:2px}
+    /* Stats row */
+    .stats { display:flex; gap:14px; margin-bottom:20px; flex-wrap:wrap; }
+    .stat { background:var(--card); border:1px solid var(--border2); border-radius:10px; padding:14px 20px; min-width:130px; box-shadow:0 1px 3px var(--shadow); }
+    .stat-val { font-size:24px; font-weight:700; }
+    .stat-val.accent { color:var(--accent); }
+    .stat-val.green { color:var(--green); }
+    .stat-val.yellow { color:var(--yellow); }
+    .stat-val.red { color:var(--red); }
+    .stat-lbl { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.04em; margin-top:2px; }
 
-    .tabs{display:flex;gap:0;background:var(--bg2);margin:12px 0 0;border-radius:10px;padding:3px;overflow-x:auto}
-    .tab{flex:1;background:transparent;border:none;padding:8px 6px;font-size:12px;font-weight:600;color:var(--muted);border-radius:8px;cursor:pointer;font-family:inherit;white-space:nowrap;text-align:center;transition:all .2s}
-    .tab.active{background:var(--card);color:var(--text);box-shadow:0 1px 4px var(--shadow)}
+    /* Project cards */
+    .project-card { background:var(--card); border:1px solid var(--border2); border-radius:12px; margin-bottom:16px; box-shadow:0 1px 3px var(--shadow); overflow:hidden; }
+    .project-header { padding:16px 20px; display:flex; justify-content:space-between; align-items:center; cursor:pointer; }
+    .project-header:hover { background:var(--bg2); }
+    .project-name { font-size:16px; font-weight:700; }
+    .project-status { font-size:11px; font-weight:600; padding:4px 10px; border-radius:6px; text-transform:uppercase; letter-spacing:.04em; }
+    .status-construction { background:#e8f5e9; color:var(--green); }
+    .status-operating { background:#e3f2fd; color:var(--blue); }
+    .status-disposition { background:#fff3e0; color:var(--yellow); }
+    .status-capital-raise { background:#fce4ec; color:var(--red); }
+    .status-early { background:var(--bg2); color:var(--muted); }
+    .project-body { display:none; border-top:1px solid var(--border2); }
+    .project-body.open { display:block; }
+    .project-meta { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:12px; padding:16px 20px; background:var(--bg2); }
+    .meta-item { font-size:12px; }
+    .meta-label { color:var(--muted); text-transform:uppercase; letter-spacing:.04em; font-weight:600; margin-bottom:2px; }
+    .meta-value { color:var(--text); font-weight:500; }
 
-    .panel{display:none;padding:16px}
-    .panel.active{display:block}
+    /* Task table */
+    .task-table { width:100%; border-collapse:collapse; font-size:13px; }
+    .task-table th { text-align:left; padding:10px 16px; font-weight:600; color:var(--muted); border-bottom:1px solid var(--border); font-size:11px; text-transform:uppercase; letter-spacing:.04em; background:var(--bg); position:sticky; top:0; }
+    .task-table td { padding:10px 16px; border-bottom:1px solid var(--border2); vertical-align:top; }
+    .task-table tr:hover td { background:var(--bg2); }
+    .task-table tr.done td { opacity:.5; text-decoration:line-through; }
+    .task-desc { font-weight:500; color:var(--text); max-width:320px; }
+    .task-requester { display:flex; align-items:center; gap:6px; }
+    .avatar { width:22px; height:22px; border-radius:50%; background:var(--accent); color:#fff; display:inline-flex; align-items:center; justify-content:center; font-size:10px; font-weight:700; flex-shrink:0; }
+    .tag { font-size:11px; padding:2px 8px; border-radius:4px; font-weight:500; white-space:nowrap; }
+    .tag-overdue { background:#fce4ec; color:var(--red); }
+    .tag-soon { background:#fff3e0; color:var(--yellow); }
+    .tag-ok { background:#e8f5e9; color:var(--green); }
+    .tag-waiting { background:#e3f2fd; color:var(--blue); }
+    .tag-email { background:var(--bg2); color:var(--text2); }
+    .tag-teams { background:#e8eaf6; color:#3949ab; }
+    .tag-meeting { background:#f3e5f5; color:#7b1fa2; }
+    .email-meta { font-size:11px; color:var(--muted); margin-top:3px; }
+    .email-subject { font-style:italic; }
 
-    .stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:16px}
-    .stat{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;box-shadow:0 1px 3px var(--shadow)}
-    .stat-val{font-size:26px;font-weight:700}
-    .stat-val.accent{color:var(--accent)}.stat-val.red{color:var(--red)}.stat-val.green{color:var(--green)}.stat-val.yellow{color:var(--yellow)}
-    .stat-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-top:2px}
+    /* People table */
+    .people-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:12px; padding:16px; }
+    .person-card { background:var(--card); border:1px solid var(--border2); border-radius:10px; padding:14px 16px; box-shadow:0 1px 3px var(--shadow); }
+    .person-name { font-weight:600; font-size:14px; display:flex; align-items:center; gap:8px; }
+    .person-role { font-size:12px; color:var(--muted); margin-top:2px; }
+    .person-email { font-size:12px; color:var(--blue); margin-top:4px; }
+    .person-context { font-size:12px; color:var(--text2); margin-top:6px; padding-top:6px; border-top:1px solid var(--border2); }
 
-    .section{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin:20px 0 10px;padding-left:2px}
+    /* Filter bar */
+    .filter-bar { display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap; align-items:center; }
+    .filter-btn { background:var(--card); border:1px solid var(--border); padding:6px 14px; border-radius:6px; font-size:12px; cursor:pointer; font-family:inherit; font-weight:500; color:var(--text2); }
+    .filter-btn:hover { border-color:var(--accent); color:var(--accent); }
+    .filter-btn.active { background:var(--accent); color:#fff; border-color:var(--accent); }
+    .search-input { background:var(--card); border:1px solid var(--border); border-radius:6px; padding:6px 12px; font-size:13px; font-family:inherit; width:220px; }
+    .search-input:focus { outline:none; border-color:var(--accent); }
 
-    .card{background:var(--card);border:1px solid var(--border);border-radius:12px;margin-bottom:10px;box-shadow:0 1px 3px var(--shadow);overflow:hidden}
-    .card-header{padding:14px 16px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;-webkit-tap-highlight-color:transparent}
-    .card-header:active{background:var(--bg2)}
-    .card-title{font-size:15px;font-weight:700}
-    .card-body{display:none;border-top:1px solid var(--border);padding:12px 16px}
-    .card-body.open{display:block}
+    .chevron { transition:transform .2s; display:inline-block; }
+    .chevron.open { transform:rotate(90deg); }
 
-    .badge{font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;text-transform:uppercase;letter-spacing:.03em;white-space:nowrap}
-    .badge-construction{background:#e8f5e9;color:var(--green)}
-    .badge-operating{background:#e3f2fd;color:var(--blue)}
-    .badge-disposition{background:#fff3e0;color:var(--yellow)}
-    .badge-capital-raise{background:#fce4ec;color:var(--red)}
-    .badge-early{background:var(--bg2);color:var(--muted)}
+    .section-title { font-size:13px; font-weight:600; color:var(--text2); text-transform:uppercase; letter-spacing:.04em; margin:20px 0 10px; }
 
-    .task-item{padding:12px 0;border-bottom:1px solid var(--border);display:flex;gap:10px;align-items:flex-start}
-    .task-item:last-child{border-bottom:none}
-    .task-check{width:20px;height:20px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center}
-    .task-check.done{background:var(--green);border-color:var(--green);color:#fff;font-size:11px}
-    .task-check.urgent{border-color:var(--red)}
-    .task-text{font-size:13px;font-weight:500;flex:1}
-    .task-text.done{text-decoration:line-through;opacity:.5}
-    .task-meta{font-size:11px;color:var(--muted);margin-top:3px}
-    .task-tags{display:flex;gap:4px;margin-top:6px;flex-wrap:wrap}
-    .tag{font-size:10px;padding:2px 7px;border-radius:4px;font-weight:600}
-    .tag-urgent{background:#fce4ec;color:var(--red)}
-    .tag-waiting{background:#e3f2fd;color:var(--blue)}
-    .tag-ok{background:#e8f5e9;color:var(--green)}
-    .tag-source{background:var(--bg2);color:var(--text2)}
-
-    .avatar{width:24px;height:24px;border-radius:50%;background:var(--accent);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0}
-
-    .person-item{padding:12px 16px;display:flex;gap:12px;align-items:center;border-bottom:1px solid var(--border)}
-    .person-item:last-child{border-bottom:none}
-    .person-name{font-size:14px;font-weight:600}
-    .person-role{font-size:11px;color:var(--muted)}
-    .person-org{font-size:11px;color:var(--accent);font-weight:500}
-
-    .alert{background:#fff3e0;border:1px solid #ffe0b2;border-radius:10px;padding:12px 14px;margin-bottom:12px;font-size:12px;color:#e65100;font-weight:500}
-
-    .search{width:100%;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 14px;font-size:14px;font-family:inherit;margin-bottom:12px;-webkit-appearance:none}
-    .search:focus{outline:none;border-color:var(--accent)}
-
-    .filters{display:flex;gap:6px;margin-bottom:12px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:4px}
-    .fbtn{background:var(--card);border:1px solid var(--border);padding:6px 12px;border-radius:8px;font-size:11px;font-weight:600;color:var(--text2);font-family:inherit;white-space:nowrap;cursor:pointer;-webkit-tap-highlight-color:transparent}
-    .fbtn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
-
-    .meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-    .meta-item .meta-label{font-size:10px;color:var(--muted);text-transform:uppercase;font-weight:600;letter-spacing:.04em}
-    .meta-item .meta-value{font-size:12px;font-weight:500;color:var(--text)}
-
-    .empty{text-align:center;color:var(--muted);padding:40px 20px;font-size:13px}
-
-    .chevron{transition:transform .2s;display:inline-block;font-size:12px;color:var(--muted)}
-    .chevron.open{transform:rotate(90deg)}
+    .alert-bar { background:#fff3e0; border:1px solid #ffe0b2; border-radius:8px; padding:12px 16px; margin-bottom:16px; font-size:13px; color:var(--yellow); display:flex; align-items:center; gap:10px; }
+    .alert-bar strong { color:#e65100; }
   </style>
 </head>
 <body>
-  <!-- PIN LOCK -->
   <div id="lockScreen" style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;padding:40px;text-align:center">
     <div style="width:48px;height:48px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;margin-bottom:20px">
       <svg width="24" height="24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
     </div>
     <div style="font-size:16px;font-weight:600;margin-bottom:4px">Enter PIN</div>
     <div style="font-size:12px;color:var(--muted);margin-bottom:24px">Access is restricted</div>
-    <input id="pinInput" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="••••••" autocomplete="off"
-      style="width:160px;text-align:center;font-size:24px;letter-spacing:8px;padding:12px;border:2px solid var(--border);border-radius:12px;background:var(--card);font-family:inherit;-webkit-appearance:none"
-      onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
-    <button id="pinBtn" onclick="checkPin()"
-      style="margin-top:16px;background:var(--accent);color:#fff;border:none;padding:12px 40px;border-radius:10px;font-size:14px;font-weight:600;font-family:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent">
-      Unlock
-    </button>
+    <input id="pinInput" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="••••••" autocomplete="off" style="width:160px;text-align:center;font-size:24px;letter-spacing:8px;padding:12px;border:2px solid var(--border);border-radius:12px;background:var(--card);font-family:inherit;-webkit-appearance:none">
+    <button onclick="checkPin()" style="margin-top:16px;background:var(--accent);color:#fff;border:none;padding:12px 40px;border-radius:10px;font-size:14px;font-weight:600;font-family:inherit;cursor:pointer">Unlock</button>
     <div id="pinError" style="color:var(--red);font-size:12px;margin-top:12px;display:none">Incorrect PIN</div>
   </div>
-
-  <!-- MAIN APP (hidden until unlocked) -->
+  <script>
+    function checkPin(){var v=document.getElementById('pinInput').value;if(v==='016376'){document.getElementById('lockScreen').style.display='none';document.getElementById('mainApp').style.display='block'}else{document.getElementById('pinError').style.display='block';document.getElementById('pinInput').value='';setTimeout(function(){document.getElementById('pinError').style.display='none'},2000)}}
+    document.getElementById('pinInput').addEventListener('keydown',function(e){if(e.key==='Enter')checkPin()});
+  </script>
   <div id="mainApp" style="display:none">
-    <div class="header">
+  <header>
+    <div>
       <h1>NRI Capital Markets</h1>
-      <div class="sub">Will Uelk — <span id="updated"></span></div>
-      <div class="tabs" id="tabs"></div>
+      <div class="subtitle">Will Uelk &mdash; Updated <span id="updateTime"></span></div>
     </div>
-    <div id="panels"></div>
+    <div class="tabs" id="mainTabs">
+      <button class="tab active" data-tab="overview">Overview</button>
+      <button class="tab" data-tab="projects">Projects</button>
+      <button class="tab" data-tab="hb">HB Tracker</button>
+      <button class="tab" data-tab="tasks">All Tasks</button>
+      <button class="tab" data-tab="people">People</button>
+    </div>
+  </header>
+
+  <!-- OVERVIEW -->
+  <div class="panel active" id="panel-overview">
+    <div id="alerts"></div>
+    <div class="stats" id="statsRow"></div>
+    <div class="section-title">Active Projects</div>
+    <div id="overviewProjects"></div>
+    <div class="section-title" style="margin-top:24px;">Upcoming This Week</div>
+    <div id="upcomingTasks"></div>
   </div>
 
-<script>
-// PIN gate
-const PIN_HASH='016376';
-function checkPin(){
-  const v=document.getElementById('pinInput').value;
-  if(v===PIN_HASH){
-    document.getElementById('lockScreen').style.display='none';
-    document.getElementById('mainApp').style.display='block';
-    sessionStorage.setItem('unlocked','1');
-    initApp();
-  } else {
-    document.getElementById('pinError').style.display='block';
-    document.getElementById('pinInput').value='';
-    document.getElementById('pinInput').style.borderColor='var(--red)';
-    setTimeout(()=>{document.getElementById('pinInput').style.borderColor='var(--border)';document.getElementById('pinError').style.display='none'},2000);
-  }
-}
-document.getElementById('pinInput').addEventListener('keydown',e=>{if(e.key==='Enter')checkPin()});
-// Auto-unlock if already unlocked this session
-if(sessionStorage.getItem('unlocked')==='1'){
-  document.getElementById('lockScreen').style.display='none';
-  document.getElementById('mainApp').style.display='block';
-  window.addEventListener('DOMContentLoaded',initApp);
-}
+  <!-- PROJECTS -->
+  <div class="panel" id="panel-projects">
+    <div class="filter-bar">
+      <button class="filter-btn active" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="construction">Construction</button>
+      <button class="filter-btn" data-filter="operating">Operating</button>
+      <button class="filter-btn" data-filter="disposition">Disposition</button>
+      <button class="filter-btn" data-filter="capital-raise">Capital Raise</button>
+    </div>
+    <div id="projectsList"></div>
+  </div>
 
-function initApp(){
-const NOW=new Date();
-document.getElementById('updated').textContent=NOW.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit'});
+  <!-- ALL TASKS -->
+  <div class="panel" id="panel-tasks">
+    <div class="filter-bar">
+      <input type="text" class="search-input" placeholder="Search tasks..." id="taskSearch">
+      <button class="filter-btn active" data-tfilter="active">Active</button>
+      <button class="filter-btn" data-tfilter="all">All</button>
+      <button class="filter-btn" data-tfilter="waiting">Waiting</button>
+      <button class="filter-btn" data-tfilter="done">Done</button>
+    </div>
+    <table class="task-table" id="allTasksTable">
+      <thead>
+        <tr>
+          <th style="width:28px"></th>
+          <th>Task</th>
+          <th>Project</th>
+          <th>Requested By</th>
+          <th>Due</th>
+          <th>Last Follow-Up</th>
+          <th>Source</th>
+        </tr>
+      </thead>
+      <tbody id="allTasksBody"></tbody>
+    </table>
+  </div>
 
-const PROJECTS=[
-  {id:'oohv',name:'One&Only Hudson Valley',aka:'CIA / OOHV',status:'construction',statusLabel:'Construction',location:'Hyde Park, NY',operator:'Kerzner (One&Only)',lender:'Monroe Capital',tasks:[
-    {desc:'Monroe Capital DD Questions Part 3',done:false,requester:'Blake Sperling',org:'Monroe Capital',due:'ASAP',source:'Email',urgent:true,lastNote:'Apr 10 — Confirmed receipt'},
-    {desc:'IDA worksheet — review with Lou',done:false,requester:'Lou Dorso',org:'NRI',due:'This week',source:'Email',urgent:false,lastNote:'Mar 30 — Sent DMA comparison tab'},
-    {desc:'One&Only 2nd Amendment follow-ups',done:false,requester:'Lou Dorso',org:'NRI',due:'Ongoing',source:'Meeting',urgent:false,lastNote:'Apr 7 — Meeting w/ Zarin, Gensler'},
-    {desc:'ESD meeting recap — get worksheet from Ken Z',done:false,requester:'Will Uelk',org:'NRI',due:'Pending',source:'Email',urgent:false,lastNote:'Mar 30 — Requested attachment'},
-    {desc:'Winnakee easement — forwarded to Kai',done:true,requester:'Katy Black',org:'Lender',due:'Done',source:'Email',urgent:false,lastNote:'Mar 30'},
-  ]},
-  {id:'thesis',name:'THesis Hotel Miami',aka:'Thesis',status:'operating',statusLabel:'Operating / Refi',location:'Coral Gables, FL',operator:'NRI (self-managed)',lender:'Multiple (refi)',tasks:[
-    {desc:'Review Lotus lender comparison grid',done:false,requester:'Vanes',org:'Lotus CP',due:'Mon Apr 14',source:'Email',urgent:true,lastNote:'Apr 12 — Updated grid received'},
-    {desc:'Tax counsel follow-up — Nathan / Nancy',done:false,requester:'Brent Reynolds',org:'NRI',due:'This week',source:'Email',urgent:false,lastNote:'Mar 30 — Will to set up call'},
-    {desc:'Multi Lender Q&A — tax calc sheets',done:false,requester:'Faisal Ashraf',org:'Lotus CP',due:'Pending',source:'Email',urgent:false,lastNote:'Mar 30'},
-    {desc:'Investor update to Mario (JCT)',done:true,requester:'Mario Henriquez',org:'JCT',due:'Done',source:'Email',urgent:false,lastNote:'Mar 30'},
-  ]},
-  {id:'aloft',name:'Aloft Gainesville',aka:'Aloft GNV',status:'disposition',statusLabel:'Disposition',location:'Gainesville, FL',lender:'Corebridge Financial',tasks:[
-    {desc:'Call with Bill Siegel re: LOI',done:false,requester:'Bill Siegel',org:'Greenberg Traurig',due:'Mon 1:00 PM',source:'Email',urgent:true,lastNote:'Apr 12 — Confirmed 1 PM Monday'},
-    {desc:'Corebridge — negotiate interest forgiveness',done:false,requester:'Will Uelk',org:'NRI',due:'This week',source:'Email',urgent:false,lastNote:'Mar 30'},
-    {desc:'Default Notice call follow-ups',done:false,requester:'Will Uelk',org:'NRI',due:'Held Apr 8',source:'Meeting',urgent:false,lastNote:'Apr 8 — Meeting w/ Nancy, KMM, Brent'},
-    {desc:'Buyer interview — Blueleaf $15.2M best & final',done:true,requester:'Hunter',org:'Broker',due:'Done',source:'Email',urgent:false,lastNote:'Mar 30'},
-  ]},
-  {id:'barrigona',name:'Barrigona Costa Rica',aka:'Barrigona',status:'capital-raise',statusLabel:'Capital Raise',location:'Costa Rica',lender:'Kerzner International',tasks:[
-    {desc:'JVA red-line sent to Kerzner — awaiting response',done:false,requester:'Brent Reynolds',org:'NRI',due:'Waiting',source:'Email',urgent:false,lastNote:'Apr 12 — Brent sent red-line to John Oddy'},
-    {desc:'$97.5M equity model — determine GP allocation',done:false,requester:'Brent Reynolds',org:'NRI',due:'This week',source:'Email',urgent:false,lastNote:'Mar 30'},
-    {desc:'Novaro Capital investor follow-up',done:false,requester:'Alain',org:'Novaro Capital',due:'Pending',source:'Meeting',urgent:false,lastNote:'Apr 8 — Meeting held'},
-  ]},
-  {id:'siro',name:'SIRO Homestead',aka:'SIRO',status:'early',statusLabel:'Early Stage',location:'Homestead, FL',lender:'Kerzner (SIRO)',tasks:[
-    {desc:'Program Discussion follow-up',done:false,requester:'Clare Harwood',org:'Kerzner',due:'Pending',source:'Meeting',urgent:false,lastNote:'Apr 8'},
-  ]},
-  {id:'admin',name:'Admin / Housekeeping',aka:'Admin',status:'early',statusLabel:'Ongoing',location:'',lender:'',tasks:[
-    {desc:'Renew GitHub PAT "Claude Push Token"',done:false,requester:'GitHub',org:'System',due:'~Apr 19',source:'Email',urgent:true,lastNote:'Apr 12 — Expiration warning'},
-    {desc:'Upgrade Railway plan (trial expiring)',done:false,requester:'Railway',org:'System',due:'~Apr 19',source:'Email',urgent:true,lastNote:'Apr 12 — Trial alert'},
-    {desc:'CrowdStreet sub docs for Cristina',done:false,requester:'Cristina L',org:'NRI',due:'This week',source:'Teams',urgent:false,lastNote:'Apr 10'},
-    {desc:'Fort Point Cap audit — respond to Tim',done:false,requester:'Tim',org:'Fort Point',due:'Overdue',source:'Email',urgent:true,lastNote:'Mar 30'},
-    {desc:'K-1 status for Mr. Roshardt',done:false,requester:'Jovana',org:'TowerBank',due:'Waiting on CLA',source:'Email',urgent:false,lastNote:'Mar 30'},
-  ]}
-];
+  <!-- PEOPLE -->
+  <div class="panel" id="panel-people">
+    <div class="filter-bar">
+      <input type="text" class="search-input" placeholder="Search people..." id="peopleSearch">
+      <button class="filter-btn active" data-pfilter="all">All</button>
+      <button class="filter-btn" data-pfilter="nri">NRI Team</button>
+      <button class="filter-btn" data-pfilter="external">External</button>
+    </div>
+    <div class="people-grid" id="peopleGrid"></div>
+  </div>
 
-const PEOPLE=[
-  {name:'Brent Reynolds',role:'Principal / CEO',org:'NRI',email:'breynolds@nrinternational.com'},
-  {name:'Kai Yang',role:'Financial Analyst',org:'NRI',email:'kyang@nrinternational.com'},
-  {name:'Tim O\'Neill',role:'Senior — Deal Execution',org:'NRI',email:'toneill@nrinternational.com'},
-  {name:'Cristina Luzarraga',role:'Controller',org:'NRI',email:'CLuzarraga@nrinternational.com'},
-  {name:'Lou Dorso',role:'VP Development',org:'NRI',email:'ldorso@nrinternational.com'},
-  {name:'JP Piro',role:'Development',org:'NRI',email:'JPiro@nrinternational.com'},
-  {name:'Bill Siegel',role:'Partner',org:'Greenberg Traurig',email:'siegelw@gtlaw.com'},
-  {name:'Nancy Lash',role:'Tax Counsel',org:'Greenberg Traurig',email:'LashN@gtlaw.com'},
-  {name:'Blake Sperling',role:'Lender Contact',org:'Monroe Capital',email:'BSperling@monroecap.com'},
-  {name:'Faisal Ashraf',role:'Debt Broker',org:'Lotus Capital Partners',email:'fashraf@lotus-cp.com'},
-  {name:'Vanes',role:'Debt Broker',org:'Lotus Capital Partners',email:'vanes@lotus-cp.com'},
-  {name:'John Oddy',role:'JV Partner',org:'Kerzner International',email:'john.oddy@kerzner.com'},
-  {name:'Clare Harwood',role:'Development',org:'Kerzner International',email:'clare.harwood@kerzner.com'},
-  {name:'Yan Lu',role:'JV Partner',org:'Corebridge Financial',email:'yan.lu@corebridgefinancial.com'},
-  {name:'Kate Roberts',role:'Land Use Attorney',org:'Zarin & Steinmetz',email:'kroberts@zarin-steinmetz.com'},
-  {name:'Alain',role:'Investor',org:'Novaro Capital',email:'Alain@novarocapital.com'},
-  {name:'Stuart Carson',role:'Consultant',org:'PowerPlay Destination',email:'scarson@powerplaydestination.com'},
-];
-
-// Helpers
-function ini(n){return n?n.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase():'?'}
-function allTasks(){return PROJECTS.flatMap(p=>p.tasks.map(t=>({...t,project:p.name,projectId:p.id})))}
-function urgentCount(){return allTasks().filter(t=>!t.done&&t.urgent).length}
-function activeCount(){return allTasks().filter(t=>!t.done).length}
-function doneCount(){return allTasks().filter(t=>t.done).length}
-
-// Tabs
-const HB_TRACKER = {
-  updated: 'Apr 10, 2026',
-  entity: {
-    topEntity: 'Inmerso',
-    devHoldings: 'NRI Barrigona Development Holdings',
-    devHoldingsAmt: '$11.49M',
-    investmentVehicle: 'NRI Investment Collection',
-    investmentNote: 'Receives bridge loan + equity proceeds'
-  },
-  equity: {
-    target: '$85M',
-    committed: '$11.49M',
-    committedBy: 'Kerzner CoGP',
-    pctRaised: 13.5,
-    closingTarget: '2026'
-  },
-  bridge: {
-    target: '$600K',
-    committed: '$300K',
-    committedBy: 'Hagerstrom + Radsford',
-    pctRaised: 50
-  },
-  cashflow: {
-    gibsonCovers: 'Through May 2026',
-    reserveAmt: '$650K',
-    reserveNote: 'Carries ops until depleted, then NRI picks up',
-    monthlyOps: '$80K/mo (shrub $30K + general $50K)',
-    endingDeficit: '~$21.2M by Feb 2027',
-    deficitNote: 'Unfunded construction gap = GP equity/bridge raise target'
-  },
-  monthly: [
-    {mo:'Mar 26',sources:56500,gibson:56500,reserve:0,nriOps:0,construction:131000,shrub:6500,ops:50000,ap:0,totalUses:187500,deficit:-131000,cumDeficit:-131000},
-    {mo:'Apr 26',sources:65000,gibson:65000,reserve:0,nriOps:0,construction:168500,shrub:15000,ops:50000,ap:0,totalUses:233500,deficit:-168500,cumDeficit:-299500},
-    {mo:'May 26',sources:80000,gibson:0,reserve:80000,nriOps:0,construction:283500,shrub:30000,ops:50000,ap:0,totalUses:363500,deficit:-283500,cumDeficit:-583000},
-    {mo:'Jun 26',sources:80000,gibson:0,reserve:80000,nriOps:0,construction:513500,shrub:30000,ops:50000,ap:0,totalUses:593500,deficit:-513500,cumDeficit:-1096500},
-    {mo:'Jul 26',sources:80000,gibson:0,reserve:80000,nriOps:0,construction:575000,shrub:30000,ops:50000,ap:562641,totalUses:1217641,deficit:-1137641,cumDeficit:-2234141},
-    {mo:'Aug 26',sources:80000,gibson:0,reserve:80000,nriOps:0,construction:662640,shrub:30000,ops:50000,ap:0,totalUses:742640,deficit:-662640,cumDeficit:-2896781},
-    {mo:'Sep 26',sources:80000,gibson:0,reserve:80000,nriOps:0,construction:980000,shrub:30000,ops:50000,ap:0,totalUses:1060000,deficit:-980000,cumDeficit:-3876781},
-    {mo:'Oct 26',sources:80000,gibson:0,reserve:80000,nriOps:0,construction:1272500,shrub:30000,ops:50000,ap:0,totalUses:1352500,deficit:-1272500,cumDeficit:-5149281},
-    {mo:'Nov 26',sources:80000,gibson:0,reserve:80000,nriOps:0,construction:2242500,shrub:30000,ops:50000,ap:0,totalUses:2322500,deficit:-2242500,cumDeficit:-7391781},
-    {mo:'Dec 26',sources:80000,gibson:0,reserve:80000,nriOps:0,construction:2640000,shrub:30000,ops:50000,ap:0,totalUses:2720000,deficit:-2640000,cumDeficit:-10031781},
-    {mo:'Jan 27',sources:30000,gibson:0,reserve:10000,nriOps:20000,construction:5603333,shrub:30000,ops:0,ap:0,totalUses:5633333,deficit:-5603333,cumDeficit:-15635114},
-    {mo:'Feb 27',sources:30000,gibson:0,reserve:0,nriOps:30000,construction:5603333,shrub:30000,ops:0,ap:0,totalUses:5633333,deficit:-5603333,cumDeficit:-21238448},
-  ],
-  pipeline: [
-    {name:'Kerzner CoGP',type:'GP Equity',status:'Committed',amount:'$11.49M'},
-    {name:'Hagerstrom',type:'Bridge',status:'Committed',amount:'$150K'},
-    {name:'Radsford',type:'Bridge',status:'Committed',amount:'$150K'},
-    {name:'Doug Stern',type:'GP Equity',status:'Pipeline',amount:'TBD'},
-    {name:'Harpeth Capital',type:'GP Equity',status:'Pipeline',amount:'TBD'},
-    {name:'Britton Jones',type:'GP Equity',status:'Pipeline',amount:'TBD'},
-    {name:'Bernard Curry',type:'GP Equity',status:'Pipeline',amount:'TBD'},
-    {name:'Chad DeMartini',type:'GP Equity',status:'Pipeline',amount:'TBD'},
-    {name:'Mel Land',type:'GP Equity',status:'Target 2026',amount:'TBD'},
-    {name:'NRI Developer',type:'GP Equity',status:'Target 2026',amount:'TBD'},
-    {name:'Kerzner Equity',type:'GP Equity',status:'Target 2026',amount:'TBD'},
-  ]
-};
-
-const tabDefs=[{id:'overview',label:'Overview'},{id:'projects',label:'Projects'},{id:'hb',label:'HB Tracker'},{id:'tasks',label:'Tasks'},{id:'people',label:'People'}];
-let activeTab='overview';
-const tabsEl=document.getElementById('tabs');
-const panelsEl=document.getElementById('panels');
-
-function render(){
-  tabsEl.innerHTML=tabDefs.map(t=>`<button class="tab ${t.id===activeTab?'active':''}" data-t="${t.id}">${t.label}</button>`).join('');
-  tabsEl.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{activeTab=b.dataset.t;render()});
-
-  if(activeTab==='overview') renderOverview();
-  else if(activeTab==='projects') renderProjects();
-  else if(activeTab==='hb') renderHBTracker();
-  else if(activeTab==='tasks') renderTasks();
-  else renderPeople();
-}
-
-function renderOverview(){
-  const urgent=allTasks().filter(t=>!t.done&&t.urgent);
-  panelsEl.innerHTML=`
-    <div class="panel active">
-      ${urgent.length?`<div class="alert">&#9888;&#65039; ${urgent.length} urgent item${urgent.length>1?'s':''} need attention</div>`:''}
-      <div class="stats">
-        <div class="stat"><div class="stat-val accent">${PROJECTS.length}</div><div class="stat-lbl">Projects</div></div>
-        <div class="stat"><div class="stat-val red">${urgentCount()}</div><div class="stat-lbl">Urgent</div></div>
-        <div class="stat"><div class="stat-val yellow">${activeCount()}</div><div class="stat-lbl">Active Tasks</div></div>
-        <div class="stat"><div class="stat-val green">${doneCount()}</div><div class="stat-lbl">Completed</div></div>
-      </div>
-      <div class="section">Urgent Items</div>
-      ${urgent.map(t=>`
-        <div class="card"><div style="padding:12px 16px">
-          <div style="font-size:13px;font-weight:600">${t.desc}</div>
-          <div style="font-size:11px;color:var(--muted);margin-top:4px">${t.requester} · ${t.org} · ${t.due}</div>
-        </div></div>
-      `).join('')}
-      <div class="section">Projects</div>
-      ${PROJECTS.filter(p=>p.id!=='admin').map(p=>{
-        const active=p.tasks.filter(t=>!t.done).length;
-        return `<div class="card"><div style="padding:12px 16px;display:flex;justify-content:space-between;align-items:center">
-          <div><div style="font-size:14px;font-weight:700">${p.name}</div><div style="font-size:11px;color:var(--muted)">${p.location}</div></div>
-          <div style="text-align:right"><span class="badge badge-${p.status}">${p.statusLabel}</span><div style="font-size:11px;color:var(--muted);margin-top:4px">${active} active</div></div>
-        </div></div>`;
-      }).join('')}
-    </div>`;
-}
-
-function renderProjects(){
-  panelsEl.innerHTML=`<div class="panel active">
-    ${PROJECTS.map(p=>`
-      <div class="card">
-        <div class="card-header" onclick="toggleCard(this)">
-          <div><div class="card-title">${p.name}</div><div style="font-size:11px;color:var(--muted)">${p.location||'Various'}</div></div>
-          <span class="badge badge-${p.status}">${p.statusLabel}</span>
-        </div>
-        <div class="card-body">
-          ${p.lender?`<div class="meta-grid" style="margin-bottom:12px"><div class="meta-item"><div class="meta-label">Key Partner</div><div class="meta-value">${p.lender}</div></div><div class="meta-item"><div class="meta-label">Status</div><div class="meta-value">${p.statusLabel}</div></div></div>`:''}
-          <div class="section" style="margin-top:0">Tasks (${p.tasks.filter(t=>!t.done).length} active)</div>
-          ${p.tasks.map(t=>`
-            <div class="task-item">
-              <div class="task-check ${t.done?'done':''}${t.urgent&&!t.done?' urgent':''}">${t.done?'&#10003;':''}</div>
-              <div style="flex:1">
-                <div class="task-text ${t.done?'done':''}">${t.desc}</div>
-                <div class="task-meta">${t.requester} · ${t.due}</div>
-                <div class="task-tags">
-                  ${t.urgent&&!t.done?'<span class="tag tag-urgent">Urgent</span>':''}
-                  ${t.due==='Waiting'||t.due.includes('Waiting')?'<span class="tag tag-waiting">Waiting</span>':''}
-                  <span class="tag tag-source">${t.source}</span>
-                </div>
-              </div>
-            </div>
-          `).join('')}
-        </div>
-      </div>
-    `).join('')}
-  </div>`;
-}
-
-function renderTasks(){
-  let filter='active';
-  const draw=()=>{
-    let tasks=allTasks();
-    if(filter==='active') tasks=tasks.filter(t=>!t.done);
-    else if(filter==='urgent') tasks=tasks.filter(t=>!t.done&&t.urgent);
-    else if(filter==='done') tasks=tasks.filter(t=>t.done);
-
-    panelsEl.innerHTML=`<div class="panel active">
-      <div class="filters" id="tfilters">
-        ${['active','urgent','all','done'].map(f=>`<button class="fbtn ${f===filter?'active':''}" data-f="${f}">${f.charAt(0).toUpperCase()+f.slice(1)} (${f==='active'?activeCount():f==='urgent'?urgentCount():f==='done'?doneCount():allTasks().length})</button>`).join('')}
-      </div>
-      ${tasks.length?tasks.map(t=>`
-        <div class="card"><div style="padding:12px 16px">
-          <div style="display:flex;gap:10px;align-items:flex-start">
-            <div class="task-check ${t.done?'done':''}${t.urgent&&!t.done?' urgent':''}">${t.done?'&#10003;':''}</div>
-            <div style="flex:1">
-              <div class="task-text ${t.done?'done':''}">${t.desc}</div>
-              <div class="task-meta">${t.project}</div>
-              <div class="task-meta">${t.requester} · ${t.org} · ${t.due}</div>
-              <div style="font-size:11px;color:var(--muted);margin-top:4px;font-style:italic">${t.lastNote}</div>
-              <div class="task-tags">
-                ${t.urgent&&!t.done?'<span class="tag tag-urgent">Urgent</span>':''}
-                <span class="tag tag-source">${t.source}</span>
-              </div>
-            </div>
-          </div>
-        </div></div>
-      `).join(''):`<div class="empty">No tasks in this filter</div>`}
-    </div>`;
-    panelsEl.querySelectorAll('#tfilters .fbtn').forEach(b=>b.onclick=()=>{filter=b.dataset.f;draw()});
-  };
-  draw();
-}
-
-function renderPeople(){
-  let pfilter='all';
-  const draw=()=>{
-    let ppl=PEOPLE;
-    if(pfilter==='nri') ppl=ppl.filter(p=>p.org==='NRI');
-    else if(pfilter==='external') ppl=ppl.filter(p=>p.org!=='NRI');
-
-    panelsEl.innerHTML=`<div class="panel active">
-      <div class="filters" id="pfilters">
-        ${['all','nri','external'].map(f=>`<button class="fbtn ${f===pfilter?'active':''}" data-f="${f}">${f==='all'?'All':f==='nri'?'NRI Team':'External'}</button>`).join('')}
-      </div>
-      <div class="card">
-        ${ppl.map(p=>`
-          <div class="person-item">
-            <div class="avatar">${ini(p.name)}</div>
-            <div style="flex:1">
-              <div class="person-name">${p.name}</div>
-              <div class="person-org">${p.org}</div>
-              <div class="person-role">${p.role}</div>
-            </div>
-          </div>
-        `).join('')}
-      </div>
-    </div>`;
-    panelsEl.querySelectorAll('#pfilters .fbtn').forEach(b=>b.onclick=()=>{pfilter=b.dataset.f;draw()});
-  };
-  draw();
-}
-
-function renderHBTracker(){
-  const h=HB_TRACKER;
-  const committedPpl=h.pipeline.filter(p=>p.status==='Committed');
-  const pipelinePpl=h.pipeline.filter(p=>p.status==='Pipeline');
-  const targetPpl=h.pipeline.filter(p=>p.status==='Target 2026');
-
-  panelsEl.innerHTML=`<div class="panel active">
-    <div style="font-size:11px;color:var(--muted);margin-bottom:12px">Hacienda Barrigona Capital Tracker &mdash; Updated ${h.updated}</div>
-
-    <div class="section">Raise Summary</div>
+  <!-- HB TRACKER -->
+  <div class="panel" id="panel-hb">
+    <div class="section-title">Hacienda Barrigona Capital Tracker — Updated Apr 10, 2026</div>
     <div class="stats">
-      <div class="stat"><div class="stat-val accent">${h.equity.target}</div><div class="stat-lbl">Equity Target</div></div>
-      <div class="stat"><div class="stat-val green">${h.equity.committed}</div><div class="stat-lbl">Committed</div></div>
-      <div class="stat"><div class="stat-val yellow">${h.bridge.target}</div><div class="stat-lbl">Bridge Target</div></div>
-      <div class="stat"><div class="stat-val green">${h.bridge.committed}</div><div class="stat-lbl">Bridge Committed</div></div>
+      <div class="stat"><div class="stat-val accent">$85M</div><div class="stat-lbl">Equity Target</div></div>
+      <div class="stat"><div class="stat-val green">$11.49M</div><div class="stat-lbl">Equity Committed</div></div>
+      <div class="stat"><div class="stat-val yellow">$600K</div><div class="stat-lbl">Bridge Target</div></div>
+      <div class="stat"><div class="stat-val green">$300K</div><div class="stat-lbl">Bridge Committed</div></div>
     </div>
 
-    <div class="card">
-      <div style="padding:14px 16px">
-        <div style="font-size:13px;font-weight:700;margin-bottom:10px">Equity Raise</div>
-        <div style="background:var(--bg2);border-radius:8px;height:12px;overflow:hidden;margin-bottom:6px">
-          <div style="background:var(--green);height:100%;width:${h.equity.pctRaised}%;border-radius:8px"></div>
-        </div>
-        <div style="font-size:11px;color:var(--muted);display:flex;justify-content:space-between">
-          <span>${h.equity.committed} committed (${h.equity.committedBy})</span>
-          <span>${h.equity.pctRaised}%</span>
-        </div>
-      </div>
+    <div class="section-title">Equity Raise Progress (13.5%)</div>
+    <div style="background:var(--card);border:1px solid var(--border2);border-radius:10px;padding:14px 20px;margin-bottom:16px;box-shadow:0 1px 3px var(--shadow)">
+      <div style="background:var(--bg2);border-radius:8px;height:14px;overflow:hidden;margin-bottom:6px"><div style="background:var(--green);height:100%;width:13.5%;border-radius:8px"></div></div>
+      <div style="font-size:12px;color:var(--muted)">$11.49M committed (Kerzner CoGP) of $85M target</div>
     </div>
 
-    <div class="card">
-      <div style="padding:14px 16px">
-        <div style="font-size:13px;font-weight:700;margin-bottom:10px">Bridge Loan</div>
-        <div style="background:var(--bg2);border-radius:8px;height:12px;overflow:hidden;margin-bottom:6px">
-          <div style="background:var(--green);height:100%;width:${h.bridge.pctRaised}%;border-radius:8px"></div>
-        </div>
-        <div style="font-size:11px;color:var(--muted);display:flex;justify-content:space-between">
-          <span>${h.bridge.committed} committed (${h.bridge.committedBy})</span>
-          <span>${h.bridge.pctRaised}%</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="section">Entity Structure</div>
-    <div class="card"><div style="padding:14px 16px">
-      <div class="meta-grid">
-        <div class="meta-item"><div class="meta-label">Top Entity</div><div class="meta-value">${h.entity.topEntity}</div></div>
-        <div class="meta-item"><div class="meta-label">Dev Holdings</div><div class="meta-value">${h.entity.devHoldings}</div></div>
-        <div class="meta-item"><div class="meta-label">Committed</div><div class="meta-value">${h.entity.devHoldingsAmt}</div></div>
-        <div class="meta-item"><div class="meta-label">Investment Vehicle</div><div class="meta-value">${h.entity.investmentVehicle}</div></div>
-      </div>
-      <div style="font-size:11px;color:var(--muted);margin-top:8px">${h.entity.investmentNote}</div>
-    </div></div>
-
-    <div class="section">Monthly Cash Flow</div>
-    <div class="card"><div style="padding:14px 16px">
-      <div class="meta-grid">
-        <div class="meta-item"><div class="meta-label">Gibson Covers</div><div class="meta-value">${h.cashflow.gibsonCovers}</div></div>
-        <div class="meta-item"><div class="meta-label">Reserve</div><div class="meta-value">${h.cashflow.reserveAmt}</div></div>
-        <div class="meta-item"><div class="meta-label">Monthly Ops</div><div class="meta-value">${h.cashflow.monthlyOps}</div></div>
-        <div class="meta-item"><div class="meta-label">Ending Deficit</div><div class="meta-value" style="color:var(--red)">${h.cashflow.endingDeficit}</div></div>
-      </div>
-      <div style="font-size:11px;color:var(--muted);margin-top:8px">${h.cashflow.reserveNote}</div>
-      <div style="font-size:11px;color:var(--yellow);margin-top:4px;font-weight:500">${h.cashflow.deficitNote}</div>
-    </div></div>
-
-    <div class="section">Monthly Cash Flow (Barrigona)</div>
-    <div class="card" style="overflow-x:auto;-webkit-overflow-scrolling:touch">
-      <table style="width:max-content;min-width:100%;border-collapse:collapse;font-size:11px">
+    <div class="section-title">Monthly Cash Flow — Sources & Uses</div>
+    <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;background:var(--card);border:1px solid var(--border2);border-radius:12px;box-shadow:0 1px 3px var(--shadow)">
+      <table class="task-table" id="hbCashFlowTable" style="min-width:900px">
         <thead>
-          <tr style="background:var(--bg2)">
-            <th style="padding:8px 10px;text-align:left;font-weight:700;position:sticky;left:0;background:var(--bg2);z-index:1;min-width:90px">Month</th>
-            <th style="padding:8px 8px;text-align:right;font-weight:600;color:var(--green);min-width:70px">Sources</th>
-            <th style="padding:8px 8px;text-align:right;font-weight:600;color:var(--red);min-width:75px">Constr.</th>
-            <th style="padding:8px 8px;text-align:right;font-weight:600;color:var(--yellow);min-width:65px">Ops</th>
-            <th style="padding:8px 8px;text-align:right;font-weight:600;color:var(--red);min-width:80px">Total Uses</th>
-            <th style="padding:8px 8px;text-align:right;font-weight:700;min-width:90px">Cum. Deficit</th>
+          <tr>
+            <th style="position:sticky;left:0;background:var(--bg);z-index:2;min-width:180px;border-right:2px solid var(--border)"></th>
+            <th style="text-align:right">Mar 26</th><th style="text-align:right">Apr 26</th><th style="text-align:right">May 26</th>
+            <th style="text-align:right">Jun 26</th><th style="text-align:right">Jul 26</th><th style="text-align:right">Aug 26</th>
+            <th style="text-align:right">Sep 26</th><th style="text-align:right">Oct 26</th><th style="text-align:right">Nov 26</th>
+            <th style="text-align:right">Dec 26</th><th style="text-align:right">Jan 27</th><th style="text-align:right">Feb 27</th>
+            <th style="text-align:right;border-left:2px solid var(--border);font-weight:700">Total</th>
           </tr>
         </thead>
         <tbody>
-          ${h.monthly.map(m=>{
-            const fmt=v=>v>=1000000?'$'+(v/1000000).toFixed(1)+'M':v>=1000?'$'+(v/1000).toFixed(0)+'K':'$'+v;
-            const fmtD=v=>'($'+(Math.abs(v)>=1000000?(Math.abs(v)/1000000).toFixed(1)+'M':(Math.abs(v)/1000).toFixed(0)+'K')+')';
-            return `<tr style="border-bottom:1px solid var(--border)">
-              <td style="padding:8px 10px;font-weight:600;position:sticky;left:0;background:var(--card);z-index:1">${m.mo}</td>
-              <td style="padding:8px 8px;text-align:right;color:var(--green)">${fmt(m.sources)}</td>
-              <td style="padding:8px 8px;text-align:right">${fmt(m.construction)}</td>
-              <td style="padding:8px 8px;text-align:right">${fmt(m.shrub+m.ops)}</td>
-              <td style="padding:8px 8px;text-align:right;color:var(--red)">${fmt(m.totalUses)}</td>
-              <td style="padding:8px 8px;text-align:right;font-weight:700;color:var(--red)">${fmtD(m.cumDeficit)}</td>
-            </tr>`;
-          }).join('')}
-          <tr style="background:var(--bg2);font-weight:700">
-            <td style="padding:8px 10px;position:sticky;left:0;background:var(--bg2);z-index:1">Total</td>
-            <td style="padding:8px 8px;text-align:right;color:var(--green)">$822K</td>
-            <td style="padding:8px 8px;text-align:right">$20.7M</td>
-            <td style="padding:8px 8px;text-align:right">$822K</td>
-            <td style="padding:8px 8px;text-align:right;color:var(--red)">$22.1M</td>
-            <td style="padding:8px 8px;text-align:right;color:var(--red)">($21.2M)</td>
-          </tr>
+          <tr style="background:var(--bg2)"><td colspan="14" style="font-weight:700;color:var(--green);position:sticky;left:0;background:var(--bg2)">SOURCES</td></tr>
+          <tr><td style="position:sticky;left:0;background:var(--card);border-right:2px solid var(--border)">Gibson Contribution</td><td style="text-align:right">57K</td><td style="text-align:right">65K</td><td style="text-align:right">-</td><td style="text-align:right">-</td><td style="text-align:right">-</td><td style="text-align:right">-</td><td style="text-align:right">-</td><td style="text-align:right">-</td><td style="text-align:right">-</td><td style="text-align:right">-</td><td style="text-align:right">-</td><td style="text-align:right">-</td><td style="text-align:right;border-left:2px solid var(--border);font-weight:600">122K</td></tr>
+          <tr><td style="position:sticky;left:0;background:var(--card);border-right:2px solid var(--border)">Gibson Reserve</td><td style="text-align:right">-</td><td style="text-align:right">-</td><td style="text-align:right">80K</td><td style="text-align:right">80K</td><td style="text-align:right">80K</td><td style="text-align:right">80K</td><td style="text-align:right">80K</td><td style="text-align:right">80K</td><td style="text-align:right">80K</td><td style="text-align:right">80K</td><td style="text-align:right">10K</td><td style="text-align:right">-</td><td style="text-align:right;border-left:2px solid var(--border);font-weight:600">650K</td></tr>
+          <tr><td style="position:sticky;left:0;background:var(--card);border-right:2px solid var(--border)">NRI Operating Cash</td><td style="text-align:right">-</td><td style="text-align:right">-</td><td style="text-align:right">-</td><td style="text-align:right">-</td><td style="text-align:right">-</td><td style="text-align:right">-</td><td style="text-align:right">-</td><td style="text-align:right">-</td><td style="text-align:right">-</td><td style="text-align:right">-</td><td style="text-align:right">20K</td><td style="text-align:right">30K</td><td style="text-align:right;border-left:2px solid var(--border);font-weight:600">50K</td></tr>
+          <tr style="font-weight:700;border-top:2px solid var(--border)"><td style="position:sticky;left:0;background:var(--card);border-right:2px solid var(--border)">Total Sources</td><td style="text-align:right;color:var(--green)">57K</td><td style="text-align:right;color:var(--green)">65K</td><td style="text-align:right;color:var(--green)">80K</td><td style="text-align:right;color:var(--green)">80K</td><td style="text-align:right;color:var(--green)">80K</td><td style="text-align:right;color:var(--green)">80K</td><td style="text-align:right;color:var(--green)">80K</td><td style="text-align:right;color:var(--green)">80K</td><td style="text-align:right;color:var(--green)">80K</td><td style="text-align:right;color:var(--green)">80K</td><td style="text-align:right;color:var(--green)">30K</td><td style="text-align:right;color:var(--green)">30K</td><td style="text-align:right;border-left:2px solid var(--border);color:var(--green)">822K</td></tr>
+
+          <tr style="background:var(--bg2)"><td colspan="14" style="font-weight:700;color:var(--red);position:sticky;left:0;background:var(--bg2)">USES</td></tr>
+          <tr><td style="position:sticky;left:0;background:var(--card);border-right:2px solid var(--border)">Construction Draw</td><td style="text-align:right">131K</td><td style="text-align:right">169K</td><td style="text-align:right">284K</td><td style="text-align:right">514K</td><td style="text-align:right">575K</td><td style="text-align:right">663K</td><td style="text-align:right">980K</td><td style="text-align:right">1.3M</td><td style="text-align:right">2.2M</td><td style="text-align:right">2.6M</td><td style="text-align:right">5.6M</td><td style="text-align:right">5.6M</td><td style="text-align:right;border-left:2px solid var(--border);font-weight:600">20.7M</td></tr>
+          <tr><td style="position:sticky;left:0;background:var(--card);border-right:2px solid var(--border)">Shrub Clearing</td><td style="text-align:right">7K</td><td style="text-align:right">15K</td><td style="text-align:right">30K</td><td style="text-align:right">30K</td><td style="text-align:right">30K</td><td style="text-align:right">30K</td><td style="text-align:right">30K</td><td style="text-align:right">30K</td><td style="text-align:right">30K</td><td style="text-align:right">30K</td><td style="text-align:right">30K</td><td style="text-align:right">30K</td><td style="text-align:right;border-left:2px solid var(--border);font-weight:600">322K</td></tr>
+          <tr><td style="position:sticky;left:0;background:var(--card);border-right:2px solid var(--border)">Operations</td><td style="text-align:right">50K</td><td style="text-align:right">50K</td><td style="text-align:right">50K</td><td style="text-align:right">50K</td><td style="text-align:right">50K</td><td style="text-align:right">50K</td><td style="text-align:right">50K</td><td style="text-align:right">50K</td><td style="text-align:right">50K</td><td style="text-align:right">50K</td><td style="text-align:right">-</td><td style="text-align:right">-</td><td style="text-align:right;border-left:2px solid var(--border);font-weight:600">500K</td></tr>
+          <tr><td style="position:sticky;left:0;background:var(--card);border-right:2px solid var(--border)">Accounts Payable</td><td style="text-align:right">-</td><td style="text-align:right">-</td><td style="text-align:right">-</td><td style="text-align:right">-</td><td style="text-align:right">563K</td><td style="text-align:right">-</td><td style="text-align:right">-</td><td style="text-align:right">-</td><td style="text-align:right">-</td><td style="text-align:right">-</td><td style="text-align:right">-</td><td style="text-align:right">-</td><td style="text-align:right;border-left:2px solid var(--border);font-weight:600">563K</td></tr>
+          <tr style="font-weight:700;border-top:2px solid var(--border)"><td style="position:sticky;left:0;background:var(--card);border-right:2px solid var(--border)">Total Uses</td><td style="text-align:right;color:var(--red)">188K</td><td style="text-align:right;color:var(--red)">234K</td><td style="text-align:right;color:var(--red)">364K</td><td style="text-align:right;color:var(--red)">594K</td><td style="text-align:right;color:var(--red)">1.2M</td><td style="text-align:right;color:var(--red)">743K</td><td style="text-align:right;color:var(--red)">1.1M</td><td style="text-align:right;color:var(--red)">1.4M</td><td style="text-align:right;color:var(--red)">2.3M</td><td style="text-align:right;color:var(--red)">2.7M</td><td style="text-align:right;color:var(--red)">5.6M</td><td style="text-align:right;color:var(--red)">5.6M</td><td style="text-align:right;border-left:2px solid var(--border);color:var(--red)">22.1M</td></tr>
+
+          <tr style="background:var(--bg2)"><td colspan="14" style="font-weight:700;position:sticky;left:0;background:var(--bg2)">BALANCE</td></tr>
+          <tr style="font-weight:600"><td style="position:sticky;left:0;background:var(--card);border-right:2px solid var(--border)">Monthly Deficit</td><td style="text-align:right;color:var(--red)">(131K)</td><td style="text-align:right;color:var(--red)">(169K)</td><td style="text-align:right;color:var(--red)">(284K)</td><td style="text-align:right;color:var(--red)">(514K)</td><td style="text-align:right;color:var(--red)">(1.1M)</td><td style="text-align:right;color:var(--red)">(663K)</td><td style="text-align:right;color:var(--red)">(980K)</td><td style="text-align:right;color:var(--red)">(1.3M)</td><td style="text-align:right;color:var(--red)">(2.2M)</td><td style="text-align:right;color:var(--red)">(2.6M)</td><td style="text-align:right;color:var(--red)">(5.6M)</td><td style="text-align:right;color:var(--red)">(5.6M)</td><td style="text-align:right;border-left:2px solid var(--border);color:var(--red)">(21.2M)</td></tr>
+          <tr style="font-weight:700;background:#fce4ec"><td style="position:sticky;left:0;background:#fce4ec;border-right:2px solid var(--border)">Cumulative Deficit</td><td style="text-align:right;color:var(--red)">(131K)</td><td style="text-align:right;color:var(--red)">(300K)</td><td style="text-align:right;color:var(--red)">(583K)</td><td style="text-align:right;color:var(--red)">(1.1M)</td><td style="text-align:right;color:var(--red)">(2.2M)</td><td style="text-align:right;color:var(--red)">(2.9M)</td><td style="text-align:right;color:var(--red)">(3.9M)</td><td style="text-align:right;color:var(--red)">(5.1M)</td><td style="text-align:right;color:var(--red)">(7.4M)</td><td style="text-align:right;color:var(--red)">(10.0M)</td><td style="text-align:right;color:var(--red)">(15.6M)</td><td style="text-align:right;color:var(--red)">(21.2M)</td><td style="text-align:right;border-left:2px solid var(--border);color:var(--red)">(21.2M)</td></tr>
         </tbody>
       </table>
     </div>
 
-    <div class="section">Capital Pipeline</div>
-    <div class="card">
-      <div style="padding:10px 16px;font-size:12px;font-weight:700;color:var(--green);border-bottom:1px solid var(--border)">Committed</div>
-      ${committedPpl.map(p=>`<div style="padding:10px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border)">
-        <div><div style="font-size:13px;font-weight:600">${p.name}</div><div style="font-size:11px;color:var(--muted)">${p.type}</div></div>
-        <div style="font-size:13px;font-weight:700;color:var(--green)">${p.amount}</div>
-      </div>`).join('')}
-      <div style="padding:10px 16px;font-size:12px;font-weight:700;color:var(--yellow);border-bottom:1px solid var(--border)">Pipeline — Needs Next Steps</div>
-      ${pipelinePpl.map(p=>`<div style="padding:10px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border)">
-        <div><div style="font-size:13px;font-weight:600">${p.name}</div><div style="font-size:11px;color:var(--muted)">${p.type}</div></div>
-        <span class="tag tag-waiting">${p.status}</span>
-      </div>`).join('')}
-      <div style="padding:10px 16px;font-size:12px;font-weight:700;color:var(--accent);border-bottom:1px solid var(--border)">Target Close 2026</div>
-      ${targetPpl.map(p=>`<div style="padding:10px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border)">
-        <div><div style="font-size:13px;font-weight:600">${p.name}</div><div style="font-size:11px;color:var(--muted)">${p.type}</div></div>
-        <span class="tag tag-source">${p.status}</span>
-      </div>`).join('')}
+    <div class="section-title">Capital Pipeline</div>
+    <div class="project-card">
+      <div style="padding:10px 16px;font-weight:700;color:var(--green);border-bottom:1px solid var(--border2)">Committed</div>
+      <table class="task-table"><tbody>
+        <tr><td><span class="task-desc">Kerzner CoGP</span><div class="email-meta">GP Equity</div></td><td style="text-align:right;font-weight:700;color:var(--green)">$11.49M</td></tr>
+        <tr><td><span class="task-desc">Hagerstrom</span><div class="email-meta">Bridge Loan</div></td><td style="text-align:right;font-weight:700;color:var(--green)">$150K</td></tr>
+        <tr><td><span class="task-desc">Radsford</span><div class="email-meta">Bridge Loan</div></td><td style="text-align:right;font-weight:700;color:var(--green)">$150K</td></tr>
+      </tbody></table>
+      <div style="padding:10px 16px;font-weight:700;color:var(--yellow);border-bottom:1px solid var(--border2);border-top:1px solid var(--border2)">Pipeline — Needs Next Steps & Close Dates</div>
+      <table class="task-table"><tbody>
+        <tr><td><span class="task-desc">Doug Stern</span><div class="email-meta">GP Equity</div></td><td style="text-align:right"><span class="tag tag-waiting">Pipeline</span></td></tr>
+        <tr><td><span class="task-desc">Harpeth Capital</span><div class="email-meta">GP Equity</div></td><td style="text-align:right"><span class="tag tag-waiting">Pipeline</span></td></tr>
+        <tr><td><span class="task-desc">Britton Jones</span><div class="email-meta">GP Equity</div></td><td style="text-align:right"><span class="tag tag-waiting">Pipeline</span></td></tr>
+        <tr><td><span class="task-desc">Bernard Curry</span><div class="email-meta">GP Equity</div></td><td style="text-align:right"><span class="tag tag-waiting">Pipeline</span></td></tr>
+        <tr><td><span class="task-desc">Chad DeMartini</span><div class="email-meta">GP Equity</div></td><td style="text-align:right"><span class="tag tag-waiting">Pipeline</span></td></tr>
+      </tbody></table>
+      <div style="padding:10px 16px;font-weight:700;color:var(--accent);border-bottom:1px solid var(--border2);border-top:1px solid var(--border2)">Target Close 2026</div>
+      <table class="task-table"><tbody>
+        <tr><td><span class="task-desc">Mel Land</span><div class="email-meta">GP Equity</div></td><td style="text-align:right"><span class="tag tag-email">Target 2026</span></td></tr>
+        <tr><td><span class="task-desc">NRI Developer</span><div class="email-meta">GP Equity</div></td><td style="text-align:right"><span class="tag tag-email">Target 2026</span></td></tr>
+        <tr><td><span class="task-desc">Kerzner Equity</span><div class="email-meta">GP Equity</div></td><td style="text-align:right"><span class="tag tag-email">Target 2026</span></td></tr>
+      </tbody></table>
     </div>
-  </div>`;
+
+    <div class="section-title">Entity Structure</div>
+    <div class="project-card">
+      <div class="project-meta">
+        <div class="meta-item"><div class="meta-label">Top Entity</div><div class="meta-value">Inmerso</div></div>
+        <div class="meta-item"><div class="meta-label">Dev Holdings</div><div class="meta-value">NRI Barrigona Development Holdings</div></div>
+        <div class="meta-item"><div class="meta-label">Committed</div><div class="meta-value">$11.49M</div></div>
+        <div class="meta-item"><div class="meta-label">Investment Vehicle</div><div class="meta-value">NRI Investment Collection</div></div>
+        <div class="meta-item"><div class="meta-label">Gibson Reserve</div><div class="meta-value">$650K (ops until depleted)</div></div>
+        <div class="meta-item"><div class="meta-label">Funding Gap</div><div class="meta-value" style="color:var(--red)">~$21.2M by Feb 2027</div></div>
+      </div>
+    </div>
+  </div>
+
+  </div><!-- end mainApp -->
+
+<script>
+// ===== DATA =====
+const NOW = new Date();
+document.getElementById('updateTime').textContent = NOW.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit'});
+
+const PROJECTS = [
+  {
+    id:'oohv', name:'One&Only Hudson Valley', aka:'CIA / OOHV',
+    status:'construction', statusLabel:'Construction',
+    location:'Hyde Park, NY', operator:'Kerzner (One&Only)',
+    lender:'Monroe Capital', gcContractor:'Consigli',
+    architect:'Gensler', landUse:'Zarin & Steinmetz',
+    lobbyist:'Brown & Weinraub (IDA/ESD)', paceFinancing:'Pace Equity',
+    consultant:'PowerPlay Destination',
+    keyContacts:['Brent Reynolds','Kai Yang','Lou Dorso','JP Piro','Blake Sperling (Monroe)','Ethan (Pace)','Stuart Carson (PowerPlay)'],
+    tasks:[
+      { desc:'Monroe Capital DD Questions Part 3 — respond to Blake Sperling', done:false, requester:'Blake Sperling', requesterOrg:'Monroe Capital', requesterEmail:'BSperling@monroecap.com', due:null, dueLabel:'ASAP', lastFollowUp:'Apr 10, 2026', lastFollowUpNote:'Confirmed receipt via email', source:'email', sourceSubject:'RE: OO Hudson Valley - DD Questions - Part 3', urgent:true },
+      { desc:'IDA worksheet — review with Lou after DMA budget buildup edits', done:false, requester:'Lou Dorso', requesterOrg:'NRI', requesterEmail:'ldorso@nrinternational.com', due:null, dueLabel:'This week', lastFollowUp:'Mar 30, 2026', lastFollowUpNote:'Sent back DMA comparison tab to Lou', source:'email', sourceSubject:'RE: NRI IDA', urgent:false },
+      { desc:'One&Only 2nd Amendment Strategy meeting follow-ups', done:false, requester:'Lou Dorso', requesterOrg:'NRI', requesterEmail:'ldorso@nrinternational.com', due:null, dueLabel:'Ongoing', lastFollowUp:'Apr 7, 2026', lastFollowUpNote:'Meeting held w/ Zarin, Gensler, Consigli, LaBella', source:'meeting', sourceSubject:'One&Only Hudson Valley 2nd amendment Strategy', urgent:false },
+      { desc:'Winnakee easement — forwarded to Kai for lender consultant (Katy Black)', done:true, requester:'Katy Black', requesterOrg:'Lender consultant', requesterEmail:null, due:null, dueLabel:'Done', lastFollowUp:'Mar 30, 2026', lastFollowUpNote:'Kate Roberts (Z&S) sent docs, forwarded to Kai', source:'email', sourceSubject:'Winnakee Easement', urgent:false },
+      { desc:'ESD meeting recap — get worksheet from Ken Zebrowski', done:false, requester:'Will Uelk', requesterOrg:'NRI', requesterEmail:'wuelk@nrinternational.com', due:null, dueLabel:'Pending', lastFollowUp:'Mar 30, 2026', lastFollowUpNote:'Requested attachment from Ken', source:'email', sourceSubject:'RE: ESD meeting recap', urgent:false },
+    ]
+  },
+  {
+    id:'thesis', name:'THesis Hotel Miami', aka:'Thesis',
+    status:'operating', statusLabel:'Operating / Refi',
+    location:'Coral Gables, FL', operator:'NRI (self-managed)',
+    lender:'Multiple (refi in progress)', debtBroker:'Lotus Capital Partners',
+    keyContacts:['Brent Reynolds','Kai Yang','Cristina Luzarraga','Faisal Ashraf (Lotus)','Vanes (Lotus)','Nathan Mandler','Nancy Lash (GT)'],
+    tasks:[
+      { desc:'Review Lotus CP multi-lender comparison grid', done:false, requester:'Vanes', requesterOrg:'Lotus Capital Partners', requesterEmail:'vanes@lotus-cp.com', due:'Apr 14, 2026', dueLabel:'Mon Apr 14', lastFollowUp:'Apr 12, 2026', lastFollowUpNote:'Vanes sent updated grid with lender summary', source:'email', sourceSubject:'RE: Thesis Multifamily Lender Comparison Grid', urgent:true },
+      { desc:'Tax counsel follow-up — Nathan Mandler / Nancy Lash re: lender challenge', done:false, requester:'Brent Reynolds', requesterOrg:'NRI', requesterEmail:'breynolds@nrinternational.com', due:null, dueLabel:'This week', lastFollowUp:'Mar 30, 2026', lastFollowUpNote:'Will to set up call with Nathan + Nancy', source:'email', sourceSubject:'RE: Thesis Hotel Miami Refi — Tax Counsel', urgent:false },
+      { desc:'Thesis Multi Lender Q&A — property appraiser tax calc sheets', done:false, requester:'Faisal Ashraf', requesterOrg:'Lotus Capital Partners', requesterEmail:'fashraf@lotus-cp.com', due:null, dueLabel:'Pending response', lastFollowUp:'Mar 30, 2026', lastFollowUpNote:'Will asked Faisal if property appraiser sheets suffice', source:'email', sourceSubject:'RE: Thesis Multi Lender Q&A', urgent:false },
+      { desc:'Investor update — sent Feb-2026 report to Mario Henriquez (JCT)', done:true, requester:'Mario Henriquez', requesterOrg:'JCT Management', requesterEmail:'mhenriquez@jctmanagement.com', due:null, dueLabel:'Done', lastFollowUp:'Mar 30, 2026', lastFollowUpNote:'Sent Feb-2026 investor update with performance summary', source:'email', sourceSubject:'RE: Thesis investment', urgent:false },
+    ]
+  },
+  {
+    id:'aloft', name:'Aloft Gainesville', aka:'Aloft GNV',
+    status:'disposition', statusLabel:'Disposition',
+    location:'Gainesville, FL', jvPartner:'Corebridge Financial',
+    broker:'Hunter', outsideCounsel:'Greenberg Traurig',
+    keyContacts:['Tim O\'Neill','Bill Siegel (GT)','Nancy Lash (GT)','Yan Lu (Corebridge)','Adam Baff (Corebridge)','Hunter (broker)'],
+    tasks:[
+      { desc:'Call with Bill Siegel (GT Law) re: Aloft LOI', done:false, requester:'Bill Siegel', requesterOrg:'Greenberg Traurig', requesterEmail:'siegelw@gtlaw.com', due:'Apr 13, 2026', dueLabel:'Mon Apr 13 @ 1:00 PM ET', lastFollowUp:'Apr 12, 2026', lastFollowUpNote:'Will confirmed 1:00 PM Monday works', source:'email', sourceSubject:'RE: Aloft Gainesville - LOI', urgent:true },
+      { desc:'Buyer interview with Blueleaf Capital (Andy Chopra) — $15.2M best & final', done:true, requester:'Hunter', requesterOrg:'Broker', requesterEmail:null, due:null, dueLabel:'Done', lastFollowUp:'Mar 30, 2026', lastFollowUpNote:'Hunter countered $15.5M, buyer came back $15.2M — likely best/final', source:'email', sourceSubject:'RE: Aloft Engagement', urgent:false },
+      { desc:'Corebridge discussion — negotiate interest forgiveness on payoff', done:false, requester:'Will Uelk', requesterOrg:'NRI', requesterEmail:'wuelk@nrinternational.com', due:null, dueLabel:'This week', lastFollowUp:'Mar 30, 2026', lastFollowUpNote:'JV contribution ~$74K to payoff, ~$11K NRI share at 15%', source:'email', sourceSubject:'RE: Aloft Engagement', urgent:false },
+      { desc:'Default Notice and Pre-Negotiation Letter call', done:false, requester:'Will Uelk', requesterOrg:'NRI', requesterEmail:'wuelk@nrinternational.com', due:null, dueLabel:'Held Apr 8', lastFollowUp:'Apr 8, 2026', lastFollowUpNote:'Meeting held with Nancy Lash, KMM, Brent, Tim O', source:'meeting', sourceSubject:'Aloft Gainesville - Default Notice and Pre-Negotiation Letter', urgent:false },
+      { desc:'ROFO notice sent at $18.19M gross — Corebridge gets ~$100K after payoff', done:true, requester:null, requesterOrg:null, requesterEmail:null, due:null, dueLabel:'Done', lastFollowUp:'Mar 30, 2026', lastFollowUpNote:'Communicated to Brent', source:'email', sourceSubject:'RE: Aloft Engagement', urgent:false },
+    ]
+  },
+  {
+    id:'barrigona', name:'Barrigona Costa Rica', aka:'Barrigona',
+    status:'capital-raise', statusLabel:'Capital Raise',
+    location:'Barrigona, Costa Rica', jvPartner:'Kerzner International',
+    keyContacts:['Brent Reynolds','Kai Yang','John Oddy (Kerzner)','Alain (Novaro Capital)','Otto (Casa Chameleon)','Lynne Tocchet (Vesta)'],
+    tasks:[
+      { desc:'Updated summary with $97.5M equity model — determine GP $ allocation', done:false, requester:'Brent Reynolds', requesterOrg:'NRI', requesterEmail:'breynolds@nrinternational.com', due:null, dueLabel:'This week', lastFollowUp:'Mar 30, 2026', lastFollowUpNote:'Reverting to $97.5M total equity; NRI $20M / Kerzner $12M', source:'email', sourceSubject:'RE: Barrigona summary', urgent:false },
+      { desc:'JVA red-line sent to Kerzner (John Oddy) — awaiting response', done:false, requester:'Brent Reynolds', requesterOrg:'NRI', requesterEmail:'breynolds@nrinternational.com', due:null, dueLabel:'Waiting on Kerzner', lastFollowUp:'Apr 12, 2026', lastFollowUpNote:'Brent sent red-line of HV JVA adapted for Barrigona', source:'email', sourceSubject:'Barrignoa JVA', urgent:false },
+      { desc:'Barrigona Capital Tracker Discussion', done:false, requester:'Kai Yang', requesterOrg:'NRI', requesterEmail:'kyang@nrinternational.com', due:null, dueLabel:'Recurring', lastFollowUp:'Apr 6, 2026', lastFollowUpNote:'Meeting w/ Kai, Cristina L, Tim O', source:'meeting', sourceSubject:'Barrigona Capital Tracker Discussion', urgent:false },
+      { desc:'Novaro Capital investor meeting follow-up', done:false, requester:'Alain', requesterOrg:'Novaro Capital', requesterEmail:'Alain@novarocapital.com', due:null, dueLabel:'Pending', lastFollowUp:'Apr 8, 2026', lastFollowUpNote:'Meeting held with Alain, Aldo, Patrick, Pedro', source:'meeting', sourceSubject:'Barrigona – Costa Rica', urgent:false },
+    ]
+  },
+  {
+    id:'siro', name:'SIRO Homestead', aka:'SIRO',
+    status:'early', statusLabel:'Early Stage',
+    location:'Homestead, FL', operator:'Kerzner (SIRO brand)',
+    keyContacts:['Brent Reynolds','Clare Harwood (Kerzner)','Philippine Campenhout (Kerzner)'],
+    tasks:[
+      { desc:'SIRO Homestead Program Discussion follow-up', done:false, requester:'Clare Harwood', requesterOrg:'Kerzner', requesterEmail:'clare.harwood@kerzner.com', due:null, dueLabel:'Pending', lastFollowUp:'Apr 8, 2026', lastFollowUpNote:'Meeting held — program discussion', source:'meeting', sourceSubject:'SIRO Homestead Program Discussion', urgent:false },
+    ]
+  },
+  {
+    id:'admin', name:'Admin / Housekeeping', aka:'Admin',
+    status:'early', statusLabel:'Ongoing',
+    keyContacts:[],
+    tasks:[
+      { desc:'Renew GitHub PAT "Claude Push Token"', done:false, requester:'GitHub', requesterOrg:'System', requesterEmail:null, due:'Apr 19, 2026', dueLabel:'~Apr 19', lastFollowUp:'Apr 12, 2026', lastFollowUpNote:'Expiration warning email received', source:'email', sourceSubject:'Your personal access token is about to expire', urgent:true },
+      { desc:'Upgrade Railway plan (trial expiring)', done:false, requester:'Railway', requesterOrg:'System', requesterEmail:null, due:'Apr 19, 2026', dueLabel:'~Apr 19', lastFollowUp:'Apr 12, 2026', lastFollowUpNote:'Trial alert email received', source:'email', sourceSubject:'Trial Plan Alert', urgent:true },
+      { desc:'Audit sub docs — CrowdStreet investor sub docs for Cristina', done:false, requester:'Cristina Luzarraga', requesterOrg:'NRI', requesterEmail:'CLuzarraga@nrinternational.com', due:null, dueLabel:'This week', lastFollowUp:'Apr 10, 2026', lastFollowUpNote:'Auditors requesting sub docs for CrowdStreet investors; portal crashing', source:'teams', sourceSubject:'Teams chat with Cristina', urgent:false },
+      { desc:'Fort Point Cap audit needs — respond to Tim', done:false, requester:'Tim', requesterOrg:'Fort Point Capital', requesterEmail:'tm@fortpointcap.com', due:null, dueLabel:'Overdue', lastFollowUp:'Mar 30, 2026', lastFollowUpNote:'Responded — was out of office prior week', source:'email', sourceSubject:'RE: just confirming you received my email on Monday re audit needs', urgent:true },
+      { desc:'K-1 status for Mr. Roshardt — NRI Real Token LP', done:false, requester:'Jovana', requesterOrg:'TowerBank', requesterEmail:'jfonseca@towerbank.com', due:null, dueLabel:'Waiting on CLA', lastFollowUp:'Mar 30, 2026', lastFollowUpNote:'Looped in Cristina L to check status from CLA', source:'email', sourceSubject:'RE: K!', urgent:false },
+      { desc:'Inventory file rolled forward for Vincent Fabris', done:true, requester:'Vincent Fabris', requesterOrg:'Pyramid Global', requesterEmail:'vfabris@Pyramidglobal.com', due:null, dueLabel:'Done', lastFollowUp:'Mar 30, 2026', lastFollowUpNote:'Updated file saved on USB drive on Wayne\'s table', source:'email', sourceSubject:'RE: Inventory', urgent:false },
+    ]
+  }
+];
+
+const PEOPLE = [
+  // NRI
+  { name:'Brent Reynolds', role:'Principal / CEO', org:'NRI', email:'breynolds@nrinternational.com', context:'Final decision maker on all deals. On most deal calls.' },
+  { name:'Kai Yang', role:'Financial Analyst', org:'NRI', email:'kyang@nrinternational.com', context:'Builds proformas, models, budget comparisons. Shares Pasha models via Teams. H-1B recently approved.' },
+  { name:'Tim O\'Neill', role:'Senior — Deal Execution', org:'NRI', email:'toneill@nrinternational.com', context:'Lender/investor relations, involved in Aloft sale and Thesis refi.' },
+  { name:'Cristina Luzarraga', role:'Controller / Accounting', org:'NRI', email:'CLuzarraga@nrinternational.com', context:'Audits, K-1s, property taxes, sub docs. Handles CrowdStreet investor docs.' },
+  { name:'Lou Dorso', role:'VP Development', org:'NRI', email:'ldorso@nrinternational.com', context:'Construction oversight, IDA incentives, budget reviews. Leads OOHV 2nd amendment.' },
+  { name:'JP Piro', role:'Development', org:'NRI', email:'JPiro@nrinternational.com', context:'Construction oversight for OOHV.' },
+  { name:'Adyari Avila', role:'Executive Assistant', org:'NRI', email:'adyaria@nrinternational.com', context:'Scheduling, meeting coordination. Organizes weekly calls.' },
+  { name:'Chris Nolan', role:'Legal / Deals', org:'NRI', email:'cnolan@nrinternational.com', context:'Legal review, deal docs.' },
+  { name:'Eva Geppert', role:'Legal', org:'NRI', email:'egeppert@nrinternational.com', context:'Also egeppert@rpla.law.' },
+  // External
+  { name:'Bill Siegel', role:'Partner', org:'Greenberg Traurig', email:'siegelw@gtlaw.com', context:'Outside counsel — Aloft Gainesville LOI/disposition.' },
+  { name:'Nancy Lash', role:'Tax Counsel', org:'Greenberg Traurig', email:'LashN@gtlaw.com', context:'Tax counsel for Thesis refi, Aloft default notice.' },
+  { name:'Blake Sperling', role:'Lender Contact', org:'Monroe Capital', email:'BSperling@monroecap.com', context:'DD questions for O&O Hudson Valley.' },
+  { name:'Yan Lu', role:'JV Partner Contact', org:'Corebridge Financial', email:'yan.lu@corebridgefinancial.com', context:'Aloft Gainesville JV partner. Sale discussion.' },
+  { name:'Faisal Ashraf', role:'Debt Broker', org:'Lotus Capital Partners', email:'fashraf@lotus-cp.com', context:'Thesis Miami refi — handling multi-lender process.' },
+  { name:'Vanes', role:'Debt Broker', org:'Lotus Capital Partners', email:'vanes@lotus-cp.com', context:'Sent latest Thesis lender comparison grid Apr 12.' },
+  { name:'John Oddy', role:'Kerzner', org:'Kerzner International', email:'john.oddy@kerzner.com', context:'Barrigona JVA red-line recipient.' },
+  { name:'Clare Harwood', role:'Kerzner', org:'Kerzner International', email:'clare.harwood@kerzner.com', context:'SIRO Homestead program discussion.' },
+  { name:'Kate Roberts', role:'Land Use Attorney', org:'Zarin & Steinmetz', email:'kroberts@zarin-steinmetz.com', context:'CIA / Hudson Valley land use, IDA docs, Winnakee easement.' },
+  { name:'Ken Zebrowski', role:'Government Relations', org:'Brown & Weinraub', email:'kZebrowski@brownweinraub.com', context:'IDA/ESD lobbying for Hudson Valley.' },
+  { name:'Ethan', role:'PACE Financing', org:'Pace Equity', email:'ethan@pace-equity.com', context:'O&O Hudson Valley PACE financing update calls.' },
+  { name:'Stuart Carson', role:'Consultant', org:'PowerPlay Destination', email:'scarson@powerplaydestination.com', context:'OOHV development consultant, closing statement report generator.' },
+  { name:'Alain', role:'Investor', org:'Novaro Capital', email:'Alain@novarocapital.com', context:'Barrigona investor meeting Apr 8.' },
+  { name:'Lynne Tocchet', role:'Residential', org:'Vesta Home', email:'lynne.tocchet@vestahome.com', context:'NRI/Vesta Costa Rica residential component.' },
+];
+
+// ===== RENDER =====
+function initials(name){ if(!name) return '?'; return name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase(); }
+function sourceIcon(s){ return s==='email'?'<span class="tag tag-email">Email</span>':s==='teams'?'<span class="tag tag-teams">Teams</span>':'<span class="tag tag-meeting">Meeting</span>'; }
+function urgencyTag(t){
+  if(t.done) return '<span class="tag tag-ok">Done</span>';
+  if(t.dueLabel && t.dueLabel.includes('Overdue')) return '<span class="tag tag-overdue">Overdue</span>';
+  if(t.dueLabel && t.dueLabel.includes('Waiting')) return '<span class="tag tag-waiting">Waiting</span>';
+  if(t.urgent) return '<span class="tag tag-overdue">Urgent</span>';
+  return '<span class="tag tag-ok">'+t.dueLabel+'</span>';
 }
 
-render();
-} // end initApp
-
-// Global function so onclick works
-function toggleCard(el){
-  const body=el.nextElementSibling;
-  body.classList.toggle('open');
+// Stats
+function renderStats(){
+  const all = PROJECTS.flatMap(p=>p.tasks);
+  const active = all.filter(t=>!t.done);
+  const urgent = active.filter(t=>t.urgent);
+  const waiting = active.filter(t=>t.dueLabel && t.dueLabel.includes('Waiting'));
+  document.getElementById('statsRow').innerHTML = `
+    <div class="stat"><div class="stat-val accent">${active.length}</div><div class="stat-lbl">Active Tasks</div></div>
+    <div class="stat"><div class="stat-val red">${urgent.length}</div><div class="stat-lbl">Urgent</div></div>
+    <div class="stat"><div class="stat-val yellow">${waiting.length}</div><div class="stat-lbl">Waiting</div></div>
+    <div class="stat"><div class="stat-val green">${all.filter(t=>t.done).length}</div><div class="stat-lbl">Done</div></div>
+    <div class="stat"><div class="stat-val accent">${PROJECTS.filter(p=>p.id!=='admin').length}</div><div class="stat-lbl">Active Deals</div></div>
+  `;
 }
+
+// Alerts
+function renderAlerts(){
+  const alerts = [];
+  PROJECTS.flatMap(p=>p.tasks).filter(t=>!t.done && t.urgent).forEach(t=>{
+    alerts.push(`<strong>${t.desc.split('—')[0].trim()}</strong> — ${t.dueLabel}`);
+  });
+  if(alerts.length){
+    document.getElementById('alerts').innerHTML = `<div class="alert-bar">&#9888; <div>${alerts.join(' &nbsp;|&nbsp; ')}</div></div>`;
+  }
+}
+
+// Project card
+function renderProjectCard(p, container, expanded){
+  const div = document.createElement('div');
+  div.className = 'project-card';
+  const statusClass = 'status-'+p.status;
+  const activeTasks = p.tasks.filter(t=>!t.done);
+  div.innerHTML = `
+    <div class="project-header" onclick="this.nextElementSibling.classList.toggle('open');this.querySelector('.chevron').classList.toggle('open')">
+      <div>
+        <div class="project-name"><span class="chevron ${expanded?'open':''}">&#9654;</span>&nbsp; ${p.name} <span style="font-weight:400;font-size:13px;color:var(--muted)">${p.aka?'('+p.aka+')':''}</span></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span style="font-size:12px;color:var(--muted)">${activeTasks.length} active</span>
+        <span class="project-status ${statusClass}">${p.statusLabel}</span>
+      </div>
+    </div>
+    <div class="project-body ${expanded?'open':''}">
+      <div class="project-meta">
+        ${p.location?'<div class="meta-item"><div class="meta-label">Location</div><div class="meta-value">'+p.location+'</div></div>':''}
+        ${p.operator?'<div class="meta-item"><div class="meta-label">Operator</div><div class="meta-value">'+p.operator+'</div></div>':''}
+        ${p.lender?'<div class="meta-item"><div class="meta-label">Lender</div><div class="meta-value">'+p.lender+'</div></div>':''}
+        ${p.debtBroker?'<div class="meta-item"><div class="meta-label">Debt Broker</div><div class="meta-value">'+p.debtBroker+'</div></div>':''}
+        ${p.jvPartner?'<div class="meta-item"><div class="meta-label">JV Partner</div><div class="meta-value">'+p.jvPartner+'</div></div>':''}
+        ${p.outsideCounsel?'<div class="meta-item"><div class="meta-label">Outside Counsel</div><div class="meta-value">'+p.outsideCounsel+'</div></div>':''}
+        ${p.gcContractor?'<div class="meta-item"><div class="meta-label">GC</div><div class="meta-value">'+p.gcContractor+'</div></div>':''}
+        ${p.architect?'<div class="meta-item"><div class="meta-label">Architect</div><div class="meta-value">'+p.architect+'</div></div>':''}
+        ${p.broker?'<div class="meta-item"><div class="meta-label">Broker</div><div class="meta-value">'+p.broker+'</div></div>':''}
+        ${p.consultant?'<div class="meta-item"><div class="meta-label">Consultant</div><div class="meta-value">'+p.consultant+'</div></div>':''}
+        ${p.landUse?'<div class="meta-item"><div class="meta-label">Land Use</div><div class="meta-value">'+p.landUse+'</div></div>':''}
+        ${p.lobbyist?'<div class="meta-item"><div class="meta-label">Gov Relations</div><div class="meta-value">'+p.lobbyist+'</div></div>':''}
+        ${p.paceFinancing?'<div class="meta-item"><div class="meta-label">PACE</div><div class="meta-value">'+p.paceFinancing+'</div></div>':''}
+      </div>
+      <table class="task-table">
+        <thead><tr><th style="width:28px"></th><th>Task</th><th>Requested By</th><th>Due</th><th>Last Follow-Up</th><th>Source</th></tr></thead>
+        <tbody>
+          ${p.tasks.map(t=>`
+            <tr class="${t.done?'done':''}">
+              <td>${t.done?'&#9745;':'&#9744;'}</td>
+              <td><div class="task-desc">${t.desc}</div></td>
+              <td>${t.requester?`<div class="task-requester"><span class="avatar">${initials(t.requester)}</span> <div><div style="font-weight:500">${t.requester}</div><div style="font-size:11px;color:var(--muted)">${t.requesterOrg||''}</div></div></div>`:'-'}</td>
+              <td>${urgencyTag(t)}</td>
+              <td><div style="font-weight:500;font-size:12px">${t.lastFollowUp||'-'}</div><div class="email-meta">${t.lastFollowUpNote||''}</div></td>
+              <td>${sourceIcon(t.source)}${t.sourceSubject?'<div class="email-meta email-subject">'+t.sourceSubject+'</div>':''}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+  container.appendChild(div);
+}
+
+// Overview
+function renderOverview(){
+  renderStats(); renderAlerts();
+  const c = document.getElementById('overviewProjects');
+  c.innerHTML = '';
+  PROJECTS.filter(p=>p.id!=='admin').forEach(p=>renderProjectCard(p,c,false));
+  // Upcoming
+  const upcoming = document.getElementById('upcomingTasks');
+  const urgentTasks = PROJECTS.flatMap(p=>p.tasks.map(t=>({...t, project:p.name}))).filter(t=>!t.done&&t.urgent);
+  upcoming.innerHTML = `<table class="task-table"><thead><tr><th>Task</th><th>Project</th><th>Due</th><th>Requested By</th></tr></thead><tbody>
+    ${urgentTasks.map(t=>`<tr><td class="task-desc">${t.desc}</td><td>${t.project}</td><td>${urgencyTag(t)}</td><td>${t.requester||'-'}</td></tr>`).join('')}
+  </tbody></table>`;
+}
+
+// Projects panel
+function renderProjects(filter){
+  const c = document.getElementById('projectsList'); c.innerHTML='';
+  PROJECTS.filter(p=> filter==='all'||p.status===filter).forEach(p=>renderProjectCard(p,c,true));
+}
+
+// All tasks panel
+function renderAllTasks(filter, search){
+  const tbody = document.getElementById('allTasksBody'); tbody.innerHTML='';
+  const all = PROJECTS.flatMap(p=>p.tasks.map(t=>({...t,project:p.name})));
+  let filtered = all;
+  if(filter==='active') filtered=filtered.filter(t=>!t.done);
+  if(filter==='done') filtered=filtered.filter(t=>t.done);
+  if(filter==='waiting') filtered=filtered.filter(t=>!t.done&&t.dueLabel&&t.dueLabel.includes('Waiting'));
+  if(search) filtered=filtered.filter(t=>(t.desc+t.project+(t.requester||'')).toLowerCase().includes(search.toLowerCase()));
+  filtered.forEach(t=>{
+    tbody.innerHTML += `<tr class="${t.done?'done':''}">
+      <td>${t.done?'&#9745;':'&#9744;'}</td>
+      <td><div class="task-desc">${t.desc}</div></td>
+      <td><span style="font-size:12px;color:var(--text2)">${t.project}</span></td>
+      <td>${t.requester?`<div class="task-requester"><span class="avatar">${initials(t.requester)}</span><span style="font-size:12px">${t.requester}</span></div>`:'-'}</td>
+      <td>${urgencyTag(t)}</td>
+      <td><div style="font-size:12px">${t.lastFollowUp||'-'}</div><div class="email-meta">${t.lastFollowUpNote||''}</div></td>
+      <td>${sourceIcon(t.source)}${t.sourceSubject?'<div class="email-meta email-subject">'+t.sourceSubject+'</div>':''}</td>
+    </tr>`;
+  });
+}
+
+// People panel
+function renderPeople(filter, search){
+  const grid = document.getElementById('peopleGrid'); grid.innerHTML='';
+  let list = PEOPLE;
+  if(filter==='nri') list=list.filter(p=>p.org==='NRI');
+  if(filter==='external') list=list.filter(p=>p.org!=='NRI');
+  if(search) list=list.filter(p=>(p.name+p.org+p.role+p.context).toLowerCase().includes(search.toLowerCase()));
+  list.forEach(p=>{
+    grid.innerHTML += `<div class="person-card">
+      <div class="person-name"><span class="avatar">${initials(p.name)}</span>${p.name}</div>
+      <div class="person-role">${p.role} &mdash; ${p.org}</div>
+      ${p.email?'<div class="person-email">'+p.email+'</div>':''}
+      <div class="person-context">${p.context}</div>
+    </div>`;
+  });
+}
+
+// ===== TAB SWITCHING =====
+let currentTaskFilter='active', currentPeopleFilter='all', currentProjectFilter='all';
+document.querySelectorAll('.tab').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    document.getElementById('panel-'+btn.dataset.tab).classList.add('active');
+    if(btn.dataset.tab==='projects') renderProjects(currentProjectFilter);
+    if(btn.dataset.tab==='tasks') renderAllTasks(currentTaskFilter);
+    if(btn.dataset.tab==='people') renderPeople(currentPeopleFilter);
+  });
+});
+
+// Filter buttons
+document.querySelectorAll('[data-filter]').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('[data-filter]').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    currentProjectFilter=btn.dataset.filter;
+    renderProjects(currentProjectFilter);
+  });
+});
+document.querySelectorAll('[data-tfilter]').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('[data-tfilter]').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    currentTaskFilter=btn.dataset.tfilter;
+    renderAllTasks(currentTaskFilter, document.getElementById('taskSearch').value);
+  });
+});
+document.querySelectorAll('[data-pfilter]').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('[data-pfilter]').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    currentPeopleFilter=btn.dataset.pfilter;
+    renderPeople(currentPeopleFilter, document.getElementById('peopleSearch').value);
+  });
+});
+document.getElementById('taskSearch').addEventListener('input',e=>renderAllTasks(currentTaskFilter,e.target.value));
+document.getElementById('peopleSearch').addEventListener('input',e=>renderPeople(currentPeopleFilter,e.target.value));
+
+// Init
+renderOverview();
 </script>
 </body>
 </html>
