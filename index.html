@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="NRI Dashboard">
+  <title>App</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='4' y='2' width='24' height='28' rx='4' fill='%23faf9f5' stroke='%23D97757' stroke-width='2'/%3E%3Crect x='8' y='0' width='16' height='5' rx='2.5' fill='%23D97757'/%3E%3C/svg%3E">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    :root{--bg:#faf9f5;--bg2:#f0efea;--card:#fff;--text:#141413;--text2:#5c5c5a;--muted:#8c8c8a;--accent:#D97757;--border:#e5e4df;--green:#2d8a4e;--yellow:#b8860b;--red:#c0392b;--blue:#2980b9;--shadow:rgba(20,20,19,.06)}
+    body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);padding:0;line-height:1.5;-webkit-font-smoothing:antialiased;padding-bottom:80px}
+
+    .header{position:sticky;top:0;z-index:100;background:var(--bg);padding:16px 16px 0;border-bottom:1px solid var(--border)}
+    .header h1{font-size:18px;font-weight:700;letter-spacing:-.02em}
+    .header .sub{font-size:11px;color:var(--muted);margin-top:2px}
+
+    .tabs{display:flex;gap:0;background:var(--bg2);margin:12px 0 0;border-radius:10px;padding:3px;overflow-x:auto}
+    .tab{flex:1;background:transparent;border:none;padding:8px 6px;font-size:12px;font-weight:600;color:var(--muted);border-radius:8px;cursor:pointer;font-family:inherit;white-space:nowrap;text-align:center;transition:all .2s}
+    .tab.active{background:var(--card);color:var(--text);box-shadow:0 1px 4px var(--shadow)}
+
+    .panel{display:none;padding:16px}
+    .panel.active{display:block}
+
+    .stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:16px}
+    .stat{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;box-shadow:0 1px 3px var(--shadow)}
+    .stat-val{font-size:26px;font-weight:700}
+    .stat-val.accent{color:var(--accent)}.stat-val.red{color:var(--red)}.stat-val.green{color:var(--green)}.stat-val.yellow{color:var(--yellow)}
+    .stat-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-top:2px}
+
+    .section{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin:20px 0 10px;padding-left:2px}
+
+    .card{background:var(--card);border:1px solid var(--border);border-radius:12px;margin-bottom:10px;box-shadow:0 1px 3px var(--shadow);overflow:hidden}
+    .card-header{padding:14px 16px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;-webkit-tap-highlight-color:transparent}
+    .card-header:active{background:var(--bg2)}
+    .card-title{font-size:15px;font-weight:700}
+    .card-body{display:none;border-top:1px solid var(--border);padding:12px 16px}
+    .card-body.open{display:block}
+
+    .badge{font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;text-transform:uppercase;letter-spacing:.03em;white-space:nowrap}
+    .badge-construction{background:#e8f5e9;color:var(--green)}
+    .badge-operating{background:#e3f2fd;color:var(--blue)}
+    .badge-disposition{background:#fff3e0;color:var(--yellow)}
+    .badge-capital-raise{background:#fce4ec;color:var(--red)}
+    .badge-early{background:var(--bg2);color:var(--muted)}
+
+    .task-item{padding:12px 0;border-bottom:1px solid var(--border);display:flex;gap:10px;align-items:flex-start}
+    .task-item:last-child{border-bottom:none}
+    .task-check{width:20px;height:20px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center}
+    .task-check.done{background:var(--green);border-color:var(--green);color:#fff;font-size:11px}
+    .task-check.urgent{border-color:var(--red)}
+    .task-text{font-size:13px;font-weight:500;flex:1}
+    .task-text.done{text-decoration:line-through;opacity:.5}
+    .task-meta{font-size:11px;color:var(--muted);margin-top:3px}
+    .task-tags{display:flex;gap:4px;margin-top:6px;flex-wrap:wrap}
+    .tag{font-size:10px;padding:2px 7px;border-radius:4px;font-weight:600}
+    .tag-urgent{background:#fce4ec;color:var(--red)}
+    .tag-waiting{background:#e3f2fd;color:var(--blue)}
+    .tag-ok{background:#e8f5e9;color:var(--green)}
+    .tag-source{background:var(--bg2);color:var(--text2)}
+
+    .avatar{width:24px;height:24px;border-radius:50%;background:var(--accent);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0}
+
+    .person-item{padding:12px 16px;display:flex;gap:12px;align-items:center;border-bottom:1px solid var(--border)}
+    .person-item:last-child{border-bottom:none}
+    .person-name{font-size:14px;font-weight:600}
+    .person-role{font-size:11px;color:var(--muted)}
+    .person-org{font-size:11px;color:var(--accent);font-weight:500}
+
+    .alert{background:#fff3e0;border:1px solid #ffe0b2;border-radius:10px;padding:12px 14px;margin-bottom:12px;font-size:12px;color:#e65100;font-weight:500}
+
+    .search{width:100%;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 14px;font-size:14px;font-family:inherit;margin-bottom:12px;-webkit-appearance:none}
+    .search:focus{outline:none;border-color:var(--accent)}
+
+    .filters{display:flex;gap:6px;margin-bottom:12px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:4px}
+    .fbtn{background:var(--card);border:1px solid var(--border);padding:6px 12px;border-radius:8px;font-size:11px;font-weight:600;color:var(--text2);font-family:inherit;white-space:nowrap;cursor:pointer;-webkit-tap-highlight-color:transparent}
+    .fbtn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+    .meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .meta-item .meta-label{font-size:10px;color:var(--muted);text-transform:uppercase;font-weight:600;letter-spacing:.04em}
+    .meta-item .meta-value{font-size:12px;font-weight:500;color:var(--text)}
+
+    .empty{text-align:center;color:var(--muted);padding:40px 20px;font-size:13px}
+
+    .chevron{transition:transform .2s;display:inline-block;font-size:12px;color:var(--muted)}
+    .chevron.open{transform:rotate(90deg)}
+  </style>
+</head>
+<body>
+  <!-- PIN LOCK -->
+  <div id="lockScreen" style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;padding:40px;text-align:center">
+    <div style="width:48px;height:48px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;margin-bottom:20px">
+      <svg width="24" height="24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+    </div>
+    <div style="font-size:16px;font-weight:600;margin-bottom:4px">Enter PIN</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:24px">Access is restricted</div>
+    <input id="pinInput" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="••••••" autocomplete="off"
+      style="width:160px;text-align:center;font-size:24px;letter-spacing:8px;padding:12px;border:2px solid var(--border);border-radius:12px;background:var(--card);font-family:inherit;-webkit-appearance:none"
+      onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
+    <button id="pinBtn" onclick="checkPin()"
+      style="margin-top:16px;background:var(--accent);color:#fff;border:none;padding:12px 40px;border-radius:10px;font-size:14px;font-weight:600;font-family:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent">
+      Unlock
+    </button>
+    <div id="pinError" style="color:var(--red);font-size:12px;margin-top:12px;display:none">Incorrect PIN</div>
+  </div>
+
+  <!-- MAIN APP (hidden until unlocked) -->
+  <div id="mainApp" style="display:none">
+    <div class="header">
+      <h1>NRI Capital Markets</h1>
+      <div class="sub">Will Uelk — <span id="updated"></span></div>
+      <div class="tabs" id="tabs"></div>
+    </div>
+    <div id="panels"></div>
+  </div>
+
+<script>
+// PIN gate
+const PIN_HASH='016376';
+function checkPin(){
+  const v=document.getElementById('pinInput').value;
+  if(v===PIN_HASH){
+    document.getElementById('lockScreen').style.display='none';
+    document.getElementById('mainApp').style.display='block';
+    sessionStorage.setItem('unlocked','1');
+    initApp();
+  } else {
+    document.getElementById('pinError').style.display='block';
+    document.getElementById('pinInput').value='';
+    document.getElementById('pinInput').style.borderColor='var(--red)';
+    setTimeout(()=>{document.getElementById('pinInput').style.borderColor='var(--border)';document.getElementById('pinError').style.display='none'},2000);
+  }
+}
+document.getElementById('pinInput').addEventListener('keydown',e=>{if(e.key==='Enter')checkPin()});
+// Auto-unlock if already unlocked this session
+if(sessionStorage.getItem('unlocked')==='1'){
+  document.getElementById('lockScreen').style.display='none';
+  document.getElementById('mainApp').style.display='block';
+  window.addEventListener('DOMContentLoaded',initApp);
+}
+
+function initApp(){
+const NOW=new Date();
+document.getElementById('updated').textContent=NOW.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit'});
+
+const PROJECTS=[
+  {id:'oohv',name:'One&Only Hudson Valley',aka:'CIA / OOHV',status:'construction',statusLabel:'Construction',location:'Hyde Park, NY',operator:'Kerzner (One&Only)',lender:'Monroe Capital',tasks:[
+    {desc:'Monroe Capital DD Questions Part 3',done:false,requester:'Blake Sperling',org:'Monroe Capital',due:'ASAP',source:'Email',urgent:true,lastNote:'Apr 10 — Confirmed receipt'},
+    {desc:'IDA worksheet — review with Lou',done:false,requester:'Lou Dorso',org:'NRI',due:'This week',source:'Email',urgent:false,lastNote:'Mar 30 — Sent DMA comparison tab'},
+    {desc:'One&Only 2nd Amendment follow-ups',done:false,requester:'Lou Dorso',org:'NRI',due:'Ongoing',source:'Meeting',urgent:false,lastNote:'Apr 7 — Meeting w/ Zarin, Gensler'},
+    {desc:'ESD meeting recap — get worksheet from Ken Z',done:false,requester:'Will Uelk',org:'NRI',due:'Pending',source:'Email',urgent:false,lastNote:'Mar 30 — Requested attachment'},
+    {desc:'Winnakee easement — forwarded to Kai',done:true,requester:'Katy Black',org:'Lender',due:'Done',source:'Email',urgent:false,lastNote:'Mar 30'},
+  ]},
+  {id:'thesis',name:'THesis Hotel Miami',aka:'Thesis',status:'operating',statusLabel:'Operating / Refi',location:'Coral Gables, FL',operator:'NRI (self-managed)',lender:'Multiple (refi)',tasks:[
+    {desc:'Review Lotus lender comparison grid',done:false,requester:'Vanes',org:'Lotus CP',due:'Mon Apr 14',source:'Email',urgent:true,lastNote:'Apr 12 — Updated grid received'},
+    {desc:'Tax counsel follow-up — Nathan / Nancy',done:false,requester:'Brent Reynolds',org:'NRI',due:'This week',source:'Email',urgent:false,lastNote:'Mar 30 — Will to set up call'},
+    {desc:'Multi Lender Q&A — tax calc sheets',done:false,requester:'Faisal Ashraf',org:'Lotus CP',due:'Pending',source:'Email',urgent:false,lastNote:'Mar 30'},
+    {desc:'Investor update to Mario (JCT)',done:true,requester:'Mario Henriquez',org:'JCT',due:'Done',source:'Email',urgent:false,lastNote:'Mar 30'},
+  ]},
+  {id:'aloft',name:'Aloft Gainesville',aka:'Aloft GNV',status:'disposition',statusLabel:'Disposition',location:'Gainesville, FL',lender:'Corebridge Financial',tasks:[
+    {desc:'Call with Bill Siegel re: LOI',done:false,requester:'Bill Siegel',org:'Greenberg Traurig',due:'Mon 1:00 PM',source:'Email',urgent:true,lastNote:'Apr 12 — Confirmed 1 PM Monday'},
+    {desc:'Corebridge — negotiate interest forgiveness',done:false,requester:'Will Uelk',org:'NRI',due:'This week',source:'Email',urgent:false,lastNote:'Mar 30'},
+    {desc:'Default Notice call follow-ups',done:false,requester:'Will Uelk',org:'NRI',due:'Held Apr 8',source:'Meeting',urgent:false,lastNote:'Apr 8 — Meeting w/ Nancy, KMM, Brent'},
+    {desc:'Buyer interview — Blueleaf $15.2M best & final',done:true,requester:'Hunter',org:'Broker',due:'Done',source:'Email',urgent:false,lastNote:'Mar 30'},
+  ]},
+  {id:'barrigona',name:'Barrigona Costa Rica',aka:'Barrigona',status:'capital-raise',statusLabel:'Capital Raise',location:'Costa Rica',lender:'Kerzner International',tasks:[
+    {desc:'JVA red-line sent to Kerzner — awaiting response',done:false,requester:'Brent Reynolds',org:'NRI',due:'Waiting',source:'Email',urgent:false,lastNote:'Apr 12 — Brent sent red-line to John Oddy'},
+    {desc:'$97.5M equity model — determine GP allocation',done:false,requester:'Brent Reynolds',org:'NRI',due:'This week',source:'Email',urgent:false,lastNote:'Mar 30'},
+    {desc:'Novaro Capital investor follow-up',done:false,requester:'Alain',org:'Novaro Capital',due:'Pending',source:'Meeting',urgent:false,lastNote:'Apr 8 — Meeting held'},
+  ]},
+  {id:'siro',name:'SIRO Homestead',aka:'SIRO',status:'early',statusLabel:'Early Stage',location:'Homestead, FL',lender:'Kerzner (SIRO)',tasks:[
+    {desc:'Program Discussion follow-up',done:false,requester:'Clare Harwood',org:'Kerzner',due:'Pending',source:'Meeting',urgent:false,lastNote:'Apr 8'},
+  ]},
+  {id:'admin',name:'Admin / Housekeeping',aka:'Admin',status:'early',statusLabel:'Ongoing',location:'',lender:'',tasks:[
+    {desc:'Renew GitHub PAT "Claude Push Token"',done:false,requester:'GitHub',org:'System',due:'~Apr 19',source:'Email',urgent:true,lastNote:'Apr 12 — Expiration warning'},
+    {desc:'Upgrade Railway plan (trial expiring)',done:false,requester:'Railway',org:'System',due:'~Apr 19',source:'Email',urgent:true,lastNote:'Apr 12 — Trial alert'},
+    {desc:'CrowdStreet sub docs for Cristina',done:false,requester:'Cristina L',org:'NRI',due:'This week',source:'Teams',urgent:false,lastNote:'Apr 10'},
+    {desc:'Fort Point Cap audit — respond to Tim',done:false,requester:'Tim',org:'Fort Point',due:'Overdue',source:'Email',urgent:true,lastNote:'Mar 30'},
+    {desc:'K-1 status for Mr. Roshardt',done:false,requester:'Jovana',org:'TowerBank',due:'Waiting on CLA',source:'Email',urgent:false,lastNote:'Mar 30'},
+  ]}
+];
+
+const PEOPLE=[
+  {name:'Brent Reynolds',role:'Principal / CEO',org:'NRI',email:'breynolds@nrinternational.com'},
+  {name:'Kai Yang',role:'Financial Analyst',org:'NRI',email:'kyang@nrinternational.com'},
+  {name:'Tim O\'Neill',role:'Senior — Deal Execution',org:'NRI',email:'toneill@nrinternational.com'},
+  {name:'Cristina Luzarraga',role:'Controller',org:'NRI',email:'CLuzarraga@nrinternational.com'},
+  {name:'Lou Dorso',role:'VP Development',org:'NRI',email:'ldorso@nrinternational.com'},
+  {name:'JP Piro',role:'Development',org:'NRI',email:'JPiro@nrinternational.com'},
+  {name:'Bill Siegel',role:'Partner',org:'Greenberg Traurig',email:'siegelw@gtlaw.com'},
+  {name:'Nancy Lash',role:'Tax Counsel',org:'Greenberg Traurig',email:'LashN@gtlaw.com'},
+  {name:'Blake Sperling',role:'Lender Contact',org:'Monroe Capital',email:'BSperling@monroecap.com'},
+  {name:'Faisal Ashraf',role:'Debt Broker',org:'Lotus Capital Partners',email:'fashraf@lotus-cp.com'},
+  {name:'Vanes',role:'Debt Broker',org:'Lotus Capital Partners',email:'vanes@lotus-cp.com'},
+  {name:'John Oddy',role:'JV Partner',org:'Kerzner International',email:'john.oddy@kerzner.com'},
+  {name:'Clare Harwood',role:'Development',org:'Kerzner International',email:'clare.harwood@kerzner.com'},
+  {name:'Yan Lu',role:'JV Partner',org:'Corebridge Financial',email:'yan.lu@corebridgefinancial.com'},
+  {name:'Kate Roberts',role:'Land Use Attorney',org:'Zarin & Steinmetz',email:'kroberts@zarin-steinmetz.com'},
+  {name:'Alain',role:'Investor',org:'Novaro Capital',email:'Alain@novarocapital.com'},
+  {name:'Stuart Carson',role:'Consultant',org:'PowerPlay Destination',email:'scarson@powerplaydestination.com'},
+];
+
+// Helpers
+function ini(n){return n?n.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase():'?'}
+function allTasks(){return PROJECTS.flatMap(p=>p.tasks.map(t=>({...t,project:p.name,projectId:p.id})))}
+function urgentCount(){return allTasks().filter(t=>!t.done&&t.urgent).length}
+function activeCount(){return allTasks().filter(t=>!t.done).length}
+function doneCount(){return allTasks().filter(t=>t.done).length}
+
+// Tabs
+const tabDefs=[{id:'overview',label:'Overview'},{id:'projects',label:'Projects'},{id:'tasks',label:'Tasks'},{id:'people',label:'People'}];
+let activeTab='overview';
+const tabsEl=document.getElementById('tabs');
+const panelsEl=document.getElementById('panels');
+
+function render(){
+  tabsEl.innerHTML=tabDefs.map(t=>`<button class="tab ${t.id===activeTab?'active':''}" data-t="${t.id}">${t.label}</button>`).join('');
+  tabsEl.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{activeTab=b.dataset.t;render()});
+
+  if(activeTab==='overview') renderOverview();
+  else if(activeTab==='projects') renderProjects();
+  else if(activeTab==='tasks') renderTasks();
+  else renderPeople();
+}
+
+function renderOverview(){
+  const urgent=allTasks().filter(t=>!t.done&&t.urgent);
+  panelsEl.innerHTML=`
+    <div class="panel active">
+      ${urgent.length?`<div class="alert">&#9888;&#65039; ${urgent.length} urgent item${urgent.length>1?'s':''} need attention</div>`:''}
+      <div class="stats">
+        <div class="stat"><div class="stat-val accent">${PROJECTS.length}</div><div class="stat-lbl">Projects</div></div>
+        <div class="stat"><div class="stat-val red">${urgentCount()}</div><div class="stat-lbl">Urgent</div></div>
+        <div class="stat"><div class="stat-val yellow">${activeCount()}</div><div class="stat-lbl">Active Tasks</div></div>
+        <div class="stat"><div class="stat-val green">${doneCount()}</div><div class="stat-lbl">Completed</div></div>
+      </div>
+      <div class="section">Urgent Items</div>
+      ${urgent.map(t=>`
+        <div class="card"><div style="padding:12px 16px">
+          <div style="font-size:13px;font-weight:600">${t.desc}</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px">${t.requester} · ${t.org} · ${t.due}</div>
+        </div></div>
+      `).join('')}
+      <div class="section">Projects</div>
+      ${PROJECTS.filter(p=>p.id!=='admin').map(p=>{
+        const active=p.tasks.filter(t=>!t.done).length;
+        return `<div class="card"><div style="padding:12px 16px;display:flex;justify-content:space-between;align-items:center">
+          <div><div style="font-size:14px;font-weight:700">${p.name}</div><div style="font-size:11px;color:var(--muted)">${p.location}</div></div>
+          <div style="text-align:right"><span class="badge badge-${p.status}">${p.statusLabel}</span><div style="font-size:11px;color:var(--muted);margin-top:4px">${active} active</div></div>
+        </div></div>`;
+      }).join('')}
+    </div>`;
+}
+
+function renderProjects(){
+  panelsEl.innerHTML=`<div class="panel active">
+    ${PROJECTS.map(p=>`
+      <div class="card">
+        <div class="card-header" onclick="toggleCard(this)">
+          <div><div class="card-title">${p.name}</div><div style="font-size:11px;color:var(--muted)">${p.location||'Various'}</div></div>
+          <span class="badge badge-${p.status}">${p.statusLabel}</span>
+        </div>
+        <div class="card-body">
+          ${p.lender?`<div class="meta-grid" style="margin-bottom:12px"><div class="meta-item"><div class="meta-label">Key Partner</div><div class="meta-value">${p.lender}</div></div><div class="meta-item"><div class="meta-label">Status</div><div class="meta-value">${p.statusLabel}</div></div></div>`:''}
+          <div class="section" style="margin-top:0">Tasks (${p.tasks.filter(t=>!t.done).length} active)</div>
+          ${p.tasks.map(t=>`
+            <div class="task-item">
+              <div class="task-check ${t.done?'done':''}${t.urgent&&!t.done?' urgent':''}">${t.done?'&#10003;':''}</div>
+              <div style="flex:1">
+                <div class="task-text ${t.done?'done':''}">${t.desc}</div>
+                <div class="task-meta">${t.requester} · ${t.due}</div>
+                <div class="task-tags">
+                  ${t.urgent&&!t.done?'<span class="tag tag-urgent">Urgent</span>':''}
+                  ${t.due==='Waiting'||t.due.includes('Waiting')?'<span class="tag tag-waiting">Waiting</span>':''}
+                  <span class="tag tag-source">${t.source}</span>
+                </div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `).join('')}
+  </div>`;
+}
+
+function renderTasks(){
+  let filter='active';
+  const draw=()=>{
+    let tasks=allTasks();
+    if(filter==='active') tasks=tasks.filter(t=>!t.done);
+    else if(filter==='urgent') tasks=tasks.filter(t=>!t.done&&t.urgent);
+    else if(filter==='done') tasks=tasks.filter(t=>t.done);
+
+    panelsEl.innerHTML=`<div class="panel active">
+      <div class="filters" id="tfilters">
+        ${['active','urgent','all','done'].map(f=>`<button class="fbtn ${f===filter?'active':''}" data-f="${f}">${f.charAt(0).toUpperCase()+f.slice(1)} (${f==='active'?activeCount():f==='urgent'?urgentCount():f==='done'?doneCount():allTasks().length})</button>`).join('')}
+      </div>
+      ${tasks.length?tasks.map(t=>`
+        <div class="card"><div style="padding:12px 16px">
+          <div style="display:flex;gap:10px;align-items:flex-start">
+            <div class="task-check ${t.done?'done':''}${t.urgent&&!t.done?' urgent':''}">${t.done?'&#10003;':''}</div>
+            <div style="flex:1">
+              <div class="task-text ${t.done?'done':''}">${t.desc}</div>
+              <div class="task-meta">${t.project}</div>
+              <div class="task-meta">${t.requester} · ${t.org} · ${t.due}</div>
+              <div style="font-size:11px;color:var(--muted);margin-top:4px;font-style:italic">${t.lastNote}</div>
+              <div class="task-tags">
+                ${t.urgent&&!t.done?'<span class="tag tag-urgent">Urgent</span>':''}
+                <span class="tag tag-source">${t.source}</span>
+              </div>
+            </div>
+          </div>
+        </div></div>
+      `).join(''):`<div class="empty">No tasks in this filter</div>`}
+    </div>`;
+    panelsEl.querySelectorAll('#tfilters .fbtn').forEach(b=>b.onclick=()=>{filter=b.dataset.f;draw()});
+  };
+  draw();
+}
+
+function renderPeople(){
+  let pfilter='all';
+  const draw=()=>{
+    let ppl=PEOPLE;
+    if(pfilter==='nri') ppl=ppl.filter(p=>p.org==='NRI');
+    else if(pfilter==='external') ppl=ppl.filter(p=>p.org!=='NRI');
+
+    panelsEl.innerHTML=`<div class="panel active">
+      <div class="filters" id="pfilters">
+        ${['all','nri','external'].map(f=>`<button class="fbtn ${f===pfilter?'active':''}" data-f="${f}">${f==='all'?'All':f==='nri'?'NRI Team':'External'}</button>`).join('')}
+      </div>
+      <div class="card">
+        ${ppl.map(p=>`
+          <div class="person-item">
+            <div class="avatar">${ini(p.name)}</div>
+            <div style="flex:1">
+              <div class="person-name">${p.name}</div>
+              <div class="person-org">${p.org}</div>
+              <div class="person-role">${p.role}</div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>`;
+    panelsEl.querySelectorAll('#pfilters .fbtn').forEach(b=>b.onclick=()=>{pfilter=b.dataset.f;draw()});
+  };
+  draw();
+}
+
+function toggleCard(el){
+  const body=el.nextElementSibling;
+  body.classList.toggle('open');
+}
+
+render();
+} // end initApp
+</script>
+</body>
+</html>
